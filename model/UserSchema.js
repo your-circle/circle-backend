@@ -23,7 +23,7 @@ const userSchema = new mongooose.Schema({
     {
       token: {
         type: String,
-        require: true,
+        required: true,
       },
     },
   ],
