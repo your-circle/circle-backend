@@ -5,12 +5,12 @@ const express = require('express');
 // app.use(cookieParser());
 
 
+dotenv.config({ path: './.env' });
 require('./db/conn');
 
 const app = express(); 
 const authRouter=require('./router/auth');
 
-dotenv.config({ path: './.env' });
 app.use(express.json());
 
 
