@@ -6,18 +6,17 @@ const SignUp = async (req, res) => {
     let toAddUser = req.body;
 
     if (!toAddUser || !toAddUser.name || !toAddUser.email) {
-      return res.status(400).send({ message: "Not vaild Request Data" });
+      return res.status(400).send({ message: "insufficient data" });
     }
 
-    const UserByName = await UserModel.findOne({ name: toAddUser.name.trim() });
-    const UserByEmail = await UserModel.findOne({
+    const hasUser = await UserModel.findOne({
       email: toAddUser.email.trim(),
     });
 
-    if (UserByName || UserByEmail) {
+    if (hasUser) {
       return res
         .status(404)
-        .send({ message: "User with same name or email exits" });
+        .send({ message: "User with this email already exist" });
     }
 
     const User = {
@@ -25,18 +24,18 @@ const SignUp = async (req, res) => {
     };
 
     const newUser = new UserModel(User);
-    const user = await newUser.save((e) => {
+    await newUser.save((e) => {
       if (e) {
         return res.status(404).send({ message: "Validation failed" });
       }
     });
-    
+
     const token = await newUser.generateAuthToken();
 
     res
       .status(200)
       .send({
-        message: "User Added",
+        message: "User registered successfully",
         data: { name: toAddUser.name, email: toAddUser.email, token: token },
       });
   } catch (e) {
@@ -46,29 +45,29 @@ const SignUp = async (req, res) => {
 
 const SignIn = async (req, res) => {
   try {
-    const { name, password } = req.body;
+    const { email, password } = req.body;
 
-    if (!name) {
-      return res.status(400).send({ message: "Invalid Input" });
+    if (!email) {
+      return res.status(400).send({ message: "Email required" });
     }
 
-    const UserByName = await UserModel.findOne({ name: name });
+    const User = await UserModel.findOne({ email });
 
-    if (!UserByName) {
-      return res.status(404).send({ message: "User Not Exits" });
+    if (!User) {
+      return res.status(404).send({ message: "User doesn't exist" });
     }
 
-    const isPasswordSame = await bcrypt.compare(password, UserByName.password);
+    const isPasswordSame = await bcrypt.compare(password, User.password);
 
     if (!isPasswordSame) {
-      return res.status(404).send({ message: "PassWord Wrong" });
+      return res.status(400).send({ message: "invalid password" });
     }
 
-    const token = await UserByName.generateAuthToken();
+    const token = await User.generateAuthToken();
 
     res.status(200).send({
-      message: "Login",
-      data: { name: UserByName.name, email: UserByName.email, token: token },
+      message: "User logged in successfully",
+      data: { name: User.name, email: User.email, token: token },
     });
   } catch (e) {
     res.status(404).send(e.message);

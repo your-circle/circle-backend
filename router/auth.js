@@ -9,7 +9,7 @@ router.get("/", (req, res) => {
 });
 
 router.get("/users", getAllUser);
-router.post("/sign-up", SignUp);
-router.post("/sign-in", SignIn);
+router.post("/signup", SignUp);
+router.post("/login", SignIn);
 //
 module.exports = router;

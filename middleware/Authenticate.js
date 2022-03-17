@@ -12,7 +12,7 @@ app.use(cookieParser());
 const Authenticate = async (req, res, next) => {
   try {
     console.log(req.cookies);
-    const token = req.cookies.jwtoken;
+    const token = req.cookies.jwtToken;
 
     const verifyToken = jwt.verify(token, process.env.SECRET_KEY);
 
