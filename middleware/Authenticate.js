@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const User = require("../model/userSchema");
+const {UserModel} = require("../model/UserSchema");
 const cookieParser = require("cookie-parser");
 const express = require("express");
 const app = express();
@@ -11,14 +11,16 @@ app.use(cookieParser());
 // throw an error
 const Authenticate = async (req, res, next) => {
   try {
-    console.log(req.cookies);
-    const token = req.cookies.jwtToken;
+  
+    const token = req.headers.authorization.split(" ")[1];
+
+    // console.log(token);
 
     const verifyToken = jwt.verify(token, process.env.SECRET_KEY);
 
-    const rootUser = await User.findOne({
+
+    const rootUser = await UserModel.findOne({
       _id: verifyToken._id,
-      "tokens.token": token,
     });
 
     if (!rootUser) {
@@ -31,9 +33,9 @@ const Authenticate = async (req, res, next) => {
 
     next();
   } catch (err) {
-    res.status(401).send("Unauthorized:No token provided");
-    console.log(err);
+    res.status(401).send("token expired our user not found");
+    // console.log(err);
   }
 };
 
-module.exports = Authenticate;
+exports.Authenticate = Authenticate;

@@ -33,7 +33,7 @@ userSchema.pre("save", async function (next) {
 //generating token using key
 userSchema.methods.generateAuthToken = async function () {
   try {
-    let tokenNew = jwt.sign({ _id: this._id }, SECRET_KEY);
+    let tokenNew = jwt.sign({ _id: this._id }, SECRET_KEY,{expiresIn:'7d'});
     return tokenNew;
   } catch (error) {
     // console.log(error);
