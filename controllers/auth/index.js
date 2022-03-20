@@ -2,7 +2,7 @@ const { UserModel } = require("../../model/UserSchema");
 const bcrypt = require("bcryptjs");
 
 
-const IsUserLogin=async (req, res) =>{
+const verifyAuthToken = async (req, res) => {
   res.status(200).send({ message: "Token is not expired" });
 }
 
@@ -92,4 +92,4 @@ const getAllUser = async (req, res) => {
 exports.SignIn = SignIn;
 exports.SignUp = SignUp;
 exports.getAllUser = getAllUser;
-exports.IsUserLogin = IsUserLogin;
+exports.verifyAuthToken = verifyAuthToken;
