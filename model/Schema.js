@@ -14,7 +14,7 @@ const userSchema = new mongooose.Schema(
     linkedin: String,
     twitter: String,
     discord: String,
-    skills: [String],
+    skills: [{tag:String}],
     open_to: [String],
   },
   { timestamps: true }
@@ -23,8 +23,8 @@ const userSchema = new mongooose.Schema(
 const dataSchema = new mongooose.Schema(
   {
     type:String,
-    skills: [String],
-    open_to: [String],
+    skills: [{tag:String}],
+    open_to: [{tag:String}],
   },
   { timestamps: true }
 );
