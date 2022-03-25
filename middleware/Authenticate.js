@@ -31,7 +31,7 @@ const Authenticate = async (req, res, next) => {
 
     next();
   } catch (err) {
-    res.status(401).send("token expired our user not found");
+    res.status(401).send({ message:err.message});
     // console.log(err);
   }
 };

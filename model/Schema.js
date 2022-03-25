@@ -11,10 +11,10 @@ const userSchema = new mongooose.Schema(
     password: { type: String, required: true },
     about: String,
     github: String,
-    linkedin: String,
+    linkedln: String,
     twitter: String,
     discord: String,
-    skills: [{tag:String}],
+    skills: [String],
     open_to: [String],
   },
   { timestamps: true }
@@ -23,8 +23,8 @@ const userSchema = new mongooose.Schema(
 const dataSchema = new mongooose.Schema(
   {
     type:String,
-    skills: [{tag:String}],
-    open_to: [{tag:String}],
+    skills: [String],
+    open_to: [String],
   },
   { timestamps: true }
 );
@@ -37,7 +37,7 @@ const projectSchema = new mongooose.Schema(
     tech:[String],
     open_to:[String],
     likes:[{user_id:String}],
-    created:String
+    creator:String
   },
   { timestamps: true }
 );
