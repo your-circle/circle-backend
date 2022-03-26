@@ -1,4 +1,4 @@
-const { UserModel } = require("../../model/Schema");
+const { UserModel } = require("../../db/Schema");
 const bcrypt = require("bcryptjs");
 
 
@@ -9,10 +9,6 @@ const verifyAuthToken = async (req, res) => {
 const SignUp = async (req, res) => {
   try {
     let toAddUser = req.body;
-
-    if (!toAddUser || !toAddUser.name || !toAddUser.email) {
-      return res.status(400).send({ message: "insufficient data" });
-    }
 
     const hasUser = await UserModel.findOne({
       email: toAddUser.email.trim(),
@@ -51,11 +47,7 @@ const SignUp = async (req, res) => {
 const SignIn = async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    if (!email) {
-      return res.status(400).send({ message: "Email required" });
-    }
-
+    
     const User = await UserModel.findOne({ email });
 
     if (!User) {

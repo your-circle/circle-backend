@@ -1,17 +1,16 @@
-const jwt = require("jsonwebtoken");
 const express = require("express");
 const router = express.Router();
+
 const { Authenticate } = require("../middleware/Authenticate")
+const { Validator } = require("../middleware/Validator")
 
-const { SignIn, SignUp, getAllUser, verifyAuthToken,UpdateUser } = require("../controllers/auth/index");
+const { SignIn, SignUp, verifyAuthToken } = require("../controllers/auth/index");
+const { SignUpValidation ,LoginValidation} = require("../controllers/auth/validation");
 
-router.get("/", (req, res) => {
-  res.send(`Hello world from the server rotuer js`);
-});
 
 
 router.get("/verifyToken", Authenticate, verifyAuthToken);
-router.post("/signup", SignUp);
-router.post("/login", SignIn);
-//
+router.post("/signup",SignUpValidation,Validator, SignUp);
+router.post("/login",LoginValidation,Validator, SignIn);
+
 module.exports = router;
