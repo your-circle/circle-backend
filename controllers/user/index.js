@@ -1,4 +1,4 @@
-const { UserModel } = require("../../model/Schema");
+const { UserModel } = require("../../db/Schema");
 
 const getAllUser = async (req, res) => {
   try {
@@ -14,7 +14,7 @@ const UpdateUser = async (req, res) => {
 
     const filter = { _id: req.userID };
     const update = { ...req.body };
-    console.log(update);
+    // console.log(update);
 
     await UserModel.findOneAndUpdate(filter, update);
     const update_user = await UserModel.findOne(filter).select({ password: 0 });
