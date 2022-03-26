@@ -10,12 +10,14 @@ require("./db/conn");
 
 const app = express();
 const authRouter = require("./router/auth");
+const userRouter = require("./router/user");
 
 app.use(cors());
 app.use(express.json());
 
 // we link the router files to make our route easy
-app.use("/api/auth", authRouter);
+app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/user", userRouter);
 
 const PORT = process.env.PORT || 3000;
 

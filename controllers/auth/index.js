@@ -44,7 +44,7 @@ const SignUp = async (req, res) => {
         data: { name: toAddUser.name, email: toAddUser.email, token: token },
       });
   } catch (e) {
-    res.status(404).send(e.message);
+    res.status(404).send({message:e.message});
   }
 };
 
@@ -75,21 +75,12 @@ const SignIn = async (req, res) => {
       data: { name: User.name, email: User.email, token: token },
     });
   } catch (e) {
-    res.status(404).send(e.message);
+    res.status(404).send({message:e.message});
   }
 };
 
-// just for testing purpose
-const getAllUser = async (req, res) => {
-  try {
-    const list = await UserModel.find({});
-    return res.send(list);
-  } catch (e) {
-    res.status(404).send(e.message);
-  }
-};
+
 
 exports.SignIn = SignIn;
 exports.SignUp = SignUp;
-exports.getAllUser = getAllUser;
 exports.verifyAuthToken = verifyAuthToken;
