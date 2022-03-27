@@ -9,4 +9,4 @@ const ProjectValidation = [
   check("open_to", "open_to must be array ").isArray(),
 ];
 
-exports.ProjectValidation = this.ProjectValidation;
+exports.ProjectValidation = ProjectValidation;
