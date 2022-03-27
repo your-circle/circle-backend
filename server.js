@@ -5,29 +5,28 @@ const cors = require("cors");
 dotenv.config({ path: "./.env" });
 require("./db/conn");
 
-
 const app = express();
 const authRouter = require("./router/auth");
 const userRouter = require("./router/user");
+const projectRouter = require("./router/project");
 
 const logRequestStart = (req, res, next) => {
-  res.on('finish', () => {
-      console.info(`${req.url} ${req.method} ${res.statusCode} ${res.statusMessage};`)
-  })
-  next()
-}
-
+  res.on("finish", () => {
+    console.info(
+      `${req.url} ${req.method} ${res.statusCode} ${res.statusMessage};`
+    );
+  });
+  next();
+};
 
 app.use(cors());
 app.use(express.json());
-app.use(logRequestStart)
-
-
-
+app.use(logRequestStart);
 
 // we link the router files to make our route easy
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/project", projectRouter);
 
 const PORT = process.env.PORT || 3000;
 
