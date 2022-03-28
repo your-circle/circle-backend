@@ -9,6 +9,15 @@ const getAllUser = async (req, res) => {
   }
 };
 
+const getUser = async (req, res) => {
+  try {
+    const user = await UserModel.findById(req.params.id).select({ password: 0 });
+    return res.send({ message: "User details", data: user });
+  } catch (e) {
+    res.status(404).send({ message: e.message });
+  }
+};
+
 const UpdateUser = async (req, res) => {
   try {
 
@@ -27,4 +36,5 @@ const UpdateUser = async (req, res) => {
 };
 
 exports.getAllUser = getAllUser;
+exports.getUser = getUser;
 exports.UpdateUser = UpdateUser;
