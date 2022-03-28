@@ -1,5 +1,9 @@
 const { ProjectModel } = require("../../db/Schema");
 
+// const verifyAuthToken = async (req, res) => {
+//   res.status(200).send({ message: "Token is not expired" });
+// };
+
 const AddProject = async (req, res) => {
   try {
     let ProjectData = req.body;
@@ -20,9 +24,9 @@ const AddProject = async (req, res) => {
 
     const newProject = new ProjectModel(Project);
     await newProject.save((err) => {
-      if (err) {
-        return res.status(404).send({ message: "Validation Unsuccessful" });
-      }
+      // if (err) {
+      //   return res.status(404).send({ message: "Validation Unsuccessful" });
+      // }
     });
 
     res.status(200).send({
