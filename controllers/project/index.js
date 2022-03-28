@@ -7,6 +7,7 @@ const { ProjectModel } = require("../../db/Schema");
 const AddProject = async (req, res) => {
   try {
     let ProjectData = req.body;
+    
 
     const hasProject = await ProjectModel.findOne({
       title: ProjectData.title,
@@ -20,7 +21,9 @@ const AddProject = async (req, res) => {
 
     const Project = {
       ...ProjectData,
+      creator:req.rootUser.name
     };
+
 
     const newProject = new ProjectModel(Project);
     await newProject.save((err) => {
@@ -32,9 +35,9 @@ const AddProject = async (req, res) => {
     res.status(200).send({
       message: "Project added successfully",
       data: {
-        title: ProjectData.title,
-        description: ProjectData.description,
-        creator: ProjectData.Creator,
+        title: Project.title,
+        description: Project.description,
+        creator: Project.creator,
       },
     });
   } catch (error) {
