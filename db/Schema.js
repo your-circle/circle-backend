@@ -11,20 +11,21 @@ const userSchema = new mongooose.Schema(
     password: { type: String, required: true },
     about: String,
     github: String,
-    linkedln: String,
+    linkedin: String,
     twitter: String,
     discord: String,
-    skills: [String],
-    open_to: [String],
+    skills: [ String ],
+    open_to: [ String ],
+    avatarSeed: String
   },
   { timestamps: true }
 );
 
 const dataSchema = new mongooose.Schema(
   {
-    type:String,
-    skills: [String],
-    open_to: [String],
+    type: String,
+    skills: [ String ],
+    open_to: [ String ],
   },
   { timestamps: true }
 );
@@ -32,12 +33,12 @@ const dataSchema = new mongooose.Schema(
 
 const projectSchema = new mongooose.Schema(
   {
-    title: { type:String, required: true},
-    description:String,
-    tech:[String],
-    open_to:[String],
-    likes:[{user_id:String}],
-    creator:String
+    title: { type: String, required: true },
+    description: String,
+    tech: [ String ],
+    open_to: [ String ],
+    likes: [ { user_id: String } ],
+    creator: String
   },
   { timestamps: true }
 );

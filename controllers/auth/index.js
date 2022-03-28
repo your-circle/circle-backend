@@ -1,5 +1,6 @@
 const { UserModel } = require("../../db/Schema");
 const bcrypt = require("bcryptjs");
+const _ = require('lodash');
 
 
 const verifyAuthToken = async (req, res) => {
@@ -37,10 +38,10 @@ const SignUp = async (req, res) => {
       .status(200)
       .send({
         message: "User registered successfully",
-        data: { name: toAddUser.name, email: toAddUser.email, token: token },
+        data: { ..._.pick(toAddUser, [ '_id', 'name', 'email' ]), token: token },
       });
   } catch (e) {
-    res.status(404).send({message:e.message});
+    res.status(404).send({ message: e.message });
   }
 };
 
@@ -64,10 +65,10 @@ const SignIn = async (req, res) => {
 
     res.status(200).send({
       message: "User logged in successfully",
-      data: { name: User.name, email: User.email, token: token },
+      data: { ..._.pick(User, [ '_id', 'name', 'email' ]), token: token },
     });
   } catch (e) {
-    res.status(404).send({message:e.message});
+    res.status(404).send({ message: e.message });
   }
 };
 
