@@ -39,4 +39,14 @@ const AddProject = async (req, res) => {
   }
 };
 
+const getAllProject = async (req, res) => {
+  try {
+    const list = await ProjectModel.find({});
+    res.send({ message: "All projects so far", data: list });
+  } catch (error) {
+    res.send(404).send({ message: error.message });
+  }
+};
+
+exports.getAllProject = getAllProject;
 exports.AddProject = AddProject;
