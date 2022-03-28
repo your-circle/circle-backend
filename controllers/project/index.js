@@ -1,9 +1,5 @@
 const { ProjectModel } = require("../../db/Schema");
 
-// const verifyAuthToken = async (req, res) => {
-//   res.status(200).send({ message: "Token is not expired" });
-// };
-
 const AddProject = async (req, res) => {
   try {
     let ProjectData = req.body;
@@ -20,7 +16,7 @@ const AddProject = async (req, res) => {
 
     const Project = {
       ...ProjectData,
-      // creator:req.rootUser.name
+      creator: req.rootUser.name,
     };
 
     const newProject = new ProjectModel(Project);

@@ -11,11 +11,9 @@ app.use(cookieParser());
 // throw an error
 const Authenticate = async (req, res, next) => {
   try {
-
-    const token = req.headers.authorization;
+    const token = req.headers.authorization.split(" ")[1];
 
     const verifyToken = jwt.verify(token, process.env.SECRET_KEY);
-
 
     const rootUser = await UserModel.findOne({
       _id: verifyToken._id,
@@ -31,7 +29,7 @@ const Authenticate = async (req, res, next) => {
 
     next();
   } catch (err) {
-    res.status(401).send({ message:err.message});
+    res.status(401).send({ message: err.message });
     // console.log(err);
   }
 };
