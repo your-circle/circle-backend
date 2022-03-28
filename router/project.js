@@ -13,6 +13,7 @@ const { ProjectValidation } = require("../controllers/project/validation");
 
 router.get("/all", getAllProject);
 router.get("/:id", getProjectById);
+
 router.post(
   "/add-project",
   Authenticate,
