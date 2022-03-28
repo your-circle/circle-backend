@@ -39,4 +39,25 @@ const AddProject = async (req, res) => {
   }
 };
 
+const getAllProject = async (req, res) => {
+  try {
+    const list = await ProjectModel.find({});
+    res.send({ message: "All projects so far", data: list });
+  } catch (error) {
+    res.status(404).send({ message: error.message });
+  }
+};
+
+const getProjectById = async (req, res) => {
+  try {
+    var id = req.params.id;
+    const project = await ProjectModel.findById(id);
+    res.send({ message: "Project by this id is as follow", data: project });
+  } catch (error) {
+    res.status(404).send({ message: "Sorry! no project by this id exists" });
+  }
+};
+
+exports.getProjectById = getProjectById;
+exports.getAllProject = getAllProject;
 exports.AddProject = AddProject;
