@@ -5,18 +5,22 @@ const { SECRET_KEY } = require("../env");
 
 const userSchema = new mongooose.Schema(
   {
-    name: { type: String, required: true },
-    email: { type: String, required: true },
-    role: String,
+    name: { type: String, required: true, unique: true },
+    email: { type: String, required: true, unique: true },
+    role: {
+      type: String,
+      enum: ["peer", "mentor"],
+      message: "{VALUE} is not supported",
+    },
     password: { type: String, required: true },
     about: String,
     github: String,
     linkedin: String,
     twitter: String,
     discord: String,
-    skills: [ String ],
-    open_to: [ String ],
-    avatarSeed: String
+    skills: [{ type: String, unique: true }],
+    open_to: [{ type: String, unique: true }],
+    avatarSeed: String,
   },
   { timestamps: true }
 );
@@ -24,24 +28,41 @@ const userSchema = new mongooose.Schema(
 const dataSchema = new mongooose.Schema(
   {
     type: String,
-    skills: [ String ],
-    open_to: [ String ],
+    skills: [String],
+    open_to: [String],
   },
   { timestamps: true }
 );
-
 
 const projectSchema = new mongooose.Schema(
   {
     title: { type: String, required: true },
     description: String,
-    tech: [ String ],
-    open_to: [ String ],
-    likes: [ { user_id: String } ],
-    creator: String
+    tech: [{ type: String, unique: true }],
+    open_to: [{ type: String, unique: true }],
+    likes: [{ user_id: String }],
+    request_list: [{ type: String, unique: true }],
+    team: [{ type: String, unique: true }],
+    creator: String,
+    is_team_full: Boolean,
   },
   { timestamps: true }
 );
+
+const notificationsSchema = new mongooose.Schema({
+  user: String,
+  notifications: [
+    {
+      title: String,
+      type: {
+        type: String,
+        enum: ["project", "user-info"],
+        message: "{VALUE} is not supported",
+      },
+    },
+  ],
+  isOpen: Boolean,
+});
 
 //hashing the passwords with a total of 20 rounds
 userSchema.pre("save", async function (next) {
@@ -65,7 +86,9 @@ userSchema.methods.generateAuthToken = async function () {
 const UserModel = mongooose.model("USER", userSchema);
 const DataModel = mongooose.model("DATA", dataSchema);
 const ProjectModel = mongooose.model("PROJECT", projectSchema);
+const NotificationModel = mongooose.model("Notification", notificationsSchema);
 
 exports.UserModel = UserModel;
 exports.DataModel = DataModel;
 exports.ProjectModel = ProjectModel;
+exports.NotificationModel = NotificationModel;
