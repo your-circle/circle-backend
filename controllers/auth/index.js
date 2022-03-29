@@ -26,20 +26,22 @@ const SignUp = async (req, res) => {
     };
 
     const newUser = new UserModel(User);
-    await newUser.save((e) => {
+    await newUser.save(async (e) => {
       if (e) {
-        return res.status(404).send({ message: "Validation failed" });
+        return res.status(404).send({ message: e });
       }
+
+      const token = await newUser.generateAuthToken();
+  
+      return res
+        .status(200)
+        .send({
+          message: "User registered successfully",
+          data: { ..._.pick(toAddUser, [ '_id', 'name', 'email' ]), token: token },
+        });
+
     });
 
-    const token = await newUser.generateAuthToken();
-
-    res
-      .status(200)
-      .send({
-        message: "User registered successfully",
-        data: { ..._.pick(toAddUser, [ '_id', 'name', 'email' ]), token: token },
-      });
   } catch (e) {
     res.status(404).send({ message: e.message });
   }
