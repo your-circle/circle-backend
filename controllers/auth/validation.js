@@ -14,7 +14,5 @@ const LoginValidation = [
 
 
 
-
-
 exports.SignUpValidation=SignUpValidation;
 exports.LoginValidation=LoginValidation;

@@ -14,26 +14,38 @@ const AddProject = async (req, res) => {
         .send({ message: "A project with a same name already exists" });
     }
 
+    const User=req.rootUser;
     const Project = {
       ...ProjectData,
-      creator: req.rootUser.name,
+      creator: User._id,
     };
 
     const newProject = new ProjectModel(Project);
-    await newProject.save((err) => {
+    await newProject.save(async (err) => {
       if (err) {
-        return res.status(404).send({ message: "Validation Unsuccessful" });
+        return res.status(404).send({ message: err });
       }
+
+      User.projects.push(newProject._id);
+
+      await User.save((err) => {
+        if (err) {
+          return res.status(404).send({ message: "Some Error in add project to user list" });
+        }
+
+        return res.status(200).send({
+          message: "Project added successfully",
+          data: {
+            title: Project.title,
+            description: Project.description,
+            creator: Project.creator,
+          },
+        });
+
+      })
     });
 
-    res.status(200).send({
-      message: "Project added successfully",
-      data: {
-        title: Project.title,
-        description: Project.description,
-        creator: Project.creator,
-      },
-    });
+    
   } catch (error) {
     res.status(404).send({ message: error.message });
   }
