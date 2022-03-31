@@ -1,9 +1,10 @@
-const mongooose = require("mongoose");
+const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { SECRET_KEY } = require("../env");
+const { Schema } = mongoose;
 
-const userSchema = new mongooose.Schema(
+const userSchema = new Schema(
   {
     name: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
@@ -21,11 +22,14 @@ const userSchema = new mongooose.Schema(
     skills: [String],
     open_to: [String],
     avatarSeed: String,
+    projects: [{ type: Schema.Types.ObjectId, ref: 'PROJECT' }]
   },
   { timestamps: true }
 );
 
-const dataSchema = new mongooose.Schema(
+
+
+const dataSchema = new Schema(
   {
     type: String,
     skills: [String],
@@ -34,22 +38,23 @@ const dataSchema = new mongooose.Schema(
   { timestamps: true }
 );
 
-const projectSchema = new mongooose.Schema(
+
+const projectSchema = new Schema(
   {
     title: { type: String, required: true },
     description: String,
     tech: [String],
     open_to: [String],
-    likes: [{ user_id: String }],
+    likes: [{ type: Schema.Types.ObjectId, ref: 'USER' }],
     request_list: [String],
     team: [String],
-    creator: String,
+    creator: { type: Schema.Types.ObjectId, ref: 'USER' },
     is_team_full: Boolean,
   },
   { timestamps: true }
 );
 
-const notificationsSchema = new mongooose.Schema({
+const notificationsSchema = new Schema({
   user: String,
   notifications: [
     {
@@ -59,6 +64,7 @@ const notificationsSchema = new mongooose.Schema({
         enum: ["project", "user-info"],
         message: "{VALUE} is not supported",
       },
+      project: { type: Schema.Types.ObjectId, ref: 'PROJECT' }
     },
   ],
   isOpen: Boolean,
@@ -83,10 +89,10 @@ userSchema.methods.generateAuthToken = async function () {
   }
 };
 
-const UserModel = mongooose.model("USER", userSchema);
-const DataModel = mongooose.model("DATA", dataSchema);
-const ProjectModel = mongooose.model("PROJECT", projectSchema);
-const NotificationModel = mongooose.model("Notification", notificationsSchema);
+const UserModel = mongoose.model("USER", userSchema);
+const DataModel = mongoose.model("DATA", dataSchema);
+const ProjectModel = mongoose.model("PROJECT", projectSchema);
+const NotificationModel = mongoose.model("Notification", notificationsSchema);
 
 exports.UserModel = UserModel;
 exports.DataModel = DataModel;
