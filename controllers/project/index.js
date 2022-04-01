@@ -1,10 +1,9 @@
 const { ProjectModel } = require("../../db/models/project");
-const {ProjectJoin,ProjectAdd}= require("../notification/const")
-const {AddNotification}= require("../notification/data")
-const {GetProjectById} =require('./data')
+const { UserModel } = require("../../db/models/user");
+const { ProjectJoin, ProjectAdd } = require("../notification/const");
+const { AddNotification } = require("../notification/data");
+const { GetProjectById } = require("./data");
 const mongoose = require("mongoose");
-
-
 
 const AddProject = async (req, res) => {
   try {
@@ -56,9 +55,6 @@ const AddProject = async (req, res) => {
   }
 };
 
-
-
-
 const getAllProject = async (req, res) => {
   try {
     const list = await ProjectModel.find({});
@@ -67,8 +63,6 @@ const getAllProject = async (req, res) => {
     res.status(404).send({ message: error.message });
   }
 };
-
-
 
 const getProjectById = async (req, res) => {
   try {
@@ -80,81 +74,90 @@ const getProjectById = async (req, res) => {
   }
 };
 
-
-
-const JoinRequestForProject=async (req, res) => {
+const JoinRequestForProject = async (req, res) => {
   try {
     const project = await GetProjectById(req);
-    const user=req.rootUser;
+    const user = req.rootUser;
 
-    if(project.team.includes(user._id)){
-      return res.status(400).send({message:"User is in Team"});
+    if (project.team.includes(user._id)) {
+      return res.status(400).send({ message: "User is in Team" });
     }
 
-    if(project.request_list.includes(user._id)){
-      return res.status(400).send({message:"User is in request List"});
+    if (project.request_list.includes(user._id)) {
+      return res.status(400).send({ message: "User is in request List" });
     }
 
-    project.request_list.push(user._id)
-    
-    await project.save(async (error)=>{
-      if(error){
+    project.request_list.push(user._id);
+
+    await project.save(async (error) => {
+      if (error) {
         return res.status(404).send({ message: err });
       }
-      
-      req.projectId=project._id;
-      req.projectTitle=project.title;
-      req.projectCreator=project.creator;
-      await AddNotification(req,res,ProjectJoin)  
-    })
+
+      req.projectId = project._id;
+      req.projectTitle = project.title;
+      req.projectCreator = project.creator;
+      await AddNotification(req, res, ProjectJoin);
+    });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(404).send({ message: "Sorry! no project by this id exists" });
   }
 };
 
-const AddMemberInProject=async (req, res) => {
+const AddMemberInProject = async (req, res) => {
   try {
     const project = await GetProjectById(req);
-    const user=req.rootUser
-    const peerID=mongoose.Types.ObjectId(req.body.userID);
+    const user = req.rootUser;
+    const peerID = mongoose.Types.ObjectId(req.body.userID);
 
-    console.log(project.creator,user._id)
-    
-    if(!project.creator.equals(user._id)){
-      return res.status(404).send({ message:"You don't own the project"});
+    console.log(project.creator, user._id);
+
+    if (!project.creator.equals(user._id)) {
+      return res.status(404).send({ message: "You don't own the project" });
     }
 
-    if(!project.request_list.includes(peerID)){
-      return res.status(400).send({message:"User is not in request List"});
-    }
-    
-    project.request_list.pull(peerID)
-
-    if(project.team.includes(peerID)){
-      return res.status(400).send({message:"User is in Team"});
+    if (!project.request_list.includes(peerID)) {
+      return res.status(400).send({ message: "User is not in request List" });
     }
 
-    project.team.push(peerID)
+    project.request_list.pull(peerID);
 
-    await project.save(async (error)=>{
-      if(error){
+    if (project.team.includes(peerID)) {
+      return res.status(400).send({ message: "User is in Team" });
+    }
+
+    project.team.push(peerID);
+
+    await project.save(async (error) => {
+      if (error) {
         return res.status(404).send({ message: err });
       }
-      
-      req.projectId=project._id;
-      req.projectTitle=project.title;
-      req.projectCreator=project.creator;
-      req.userID=peerID;
 
-      await AddNotification(req,res,ProjectAdd)  
+      req.projectId = project._id;
+      req.projectTitle = project.title;
+      req.projectCreator = project.creator;
+      req.userID = peerID;
 
-    })
-
-
+      await AddNotification(req, res, ProjectAdd);
+    });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(404).send({ message: "Sorry! no project by this id exists" });
+  }
+};
+
+const GetMyProjects = async (req, res) => {
+  try {
+    var id = req.params.id;
+    // console.log(name);
+    const ProjectList = UserModel.findById(id).populate("projects");
+    res.send({
+      message: "Following are user's project",
+      data: ProjectList,
+    });
+  } catch (error) {
+    res.status(400).send(error.message);
   }
 };
 
@@ -163,3 +166,4 @@ exports.getAllProject = getAllProject;
 exports.AddProject = AddProject;
 exports.AddMemberInProject = AddMemberInProject;
 exports.JoinRequestForProject = JoinRequestForProject;
+exports.GetMyProjects = GetMyProjects;
