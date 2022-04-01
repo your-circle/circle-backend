@@ -14,7 +14,7 @@ const AddProject = async (req, res) => {
         .send({ message: "A project with a same name already exists" });
     }
 
-    const User=req.rootUser;
+    const User = req.rootUser;
     const Project = {
       ...ProjectData,
       creator: User._id,
@@ -30,7 +30,9 @@ const AddProject = async (req, res) => {
 
       await User.save((err) => {
         if (err) {
-          return res.status(404).send({ message: "Some Error in add project to user list" });
+          return res
+            .status(404)
+            .send({ message: "Some Error in add project to user list" });
         }
 
         return res.status(200).send({
@@ -41,11 +43,8 @@ const AddProject = async (req, res) => {
             creator: Project.creator,
           },
         });
-
-      })
+      });
     });
-
-    
   } catch (error) {
     res.status(404).send({ message: error.message });
   }
