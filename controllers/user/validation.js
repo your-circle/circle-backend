@@ -9,7 +9,4 @@ const UpdateUserValidation = [
 
 ]
 
-
-
-
 exports.UpdateUserValidation=UpdateUserValidation;

@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { SECRET_KEY } = require("../env");
+const { SECRET_KEY } = require("../../env");
 const { Schema } = mongoose;
 
 const userSchema = new Schema(
@@ -28,48 +28,6 @@ const userSchema = new Schema(
 );
 
 
-
-const dataSchema = new Schema(
-  {
-    type: String,
-    skills: [String],
-    open_to: [String],
-  },
-  { timestamps: true }
-);
-
-
-const projectSchema = new Schema(
-  {
-    title: { type: String, required: true },
-    description: String,
-    tech: [String],
-    open_to: [String],
-    likes: [{ type: Schema.Types.ObjectId, ref: 'USER' }],
-    request_list: [{ type: Schema.Types.ObjectId, ref: 'USER' }],
-    team: [{ type: Schema.Types.ObjectId, ref: 'USER' }],
-    creator: { type: Schema.Types.ObjectId, ref: 'USER' },
-    is_team_full: Boolean,
-  },
-  { timestamps: true }
-);
-
-const notificationsSchema = new Schema({
-  user: String,
-  notifications: [
-    {
-      title: String,
-      type: {
-        type: String,
-        enum: ["project", "user-info"],
-        message: "{VALUE} is not supported",
-      },
-      project: { type: Schema.Types.ObjectId, ref: 'PROJECT' }
-    },
-  ],
-  isOpen: Boolean,
-});
-
 //hashing the passwords with a total of 20 rounds
 userSchema.pre("save", async function (next) {
   if (this.isModified("password") || !this.password) {
@@ -90,11 +48,4 @@ userSchema.methods.generateAuthToken = async function () {
 };
 
 const UserModel = mongoose.model("USER", userSchema);
-const DataModel = mongoose.model("DATA", dataSchema);
-const ProjectModel = mongoose.model("PROJECT", projectSchema);
-const NotificationModel = mongoose.model("Notification", notificationsSchema);
-
 exports.UserModel = UserModel;
-exports.DataModel = DataModel;
-exports.ProjectModel = ProjectModel;
-exports.NotificationModel = NotificationModel;

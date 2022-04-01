@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { UserModel } = require("../db/Schema");
+const { UserModel } = require("../db/models/user");
 const cookieParser = require("cookie-parser");
 const express = require("express");
 const app = express();

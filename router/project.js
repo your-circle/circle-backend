@@ -1,15 +1,15 @@
 const express = require("express");
 const router = express.Router();
 
-const { Authenticate } = require("../middleware/Authenticate");
-const { Validator } = require("../middleware/Validator");
+const { Authenticate } = require("../middleware/authenticate");
+const { Validator } = require("../middleware/validator");
+const { ProjectValidation } = require("../controllers/project/validation");
 
 const {
   AddProject,
   getAllProject,
   getProjectById,
 } = require("../controllers/project/index");
-const { ProjectValidation } = require("../controllers/project/validation");
 
 router.get("/all", getAllProject);
 router.get("/:id", getProjectById);
