@@ -11,7 +11,9 @@ const getAllUser = async (req, res) => {
 
 const getUser = async (req, res) => {
   try {
-    const user = await UserModel.findById(req.params.id).select({ password: 0 });
+    const user = await UserModel.findById(req.params.id).select({
+      password: 0,
+    });
     return res.send({ message: "User details", data: user });
   } catch (e) {
     res.status(404).send({ message: e.message });
@@ -20,7 +22,6 @@ const getUser = async (req, res) => {
 
 const UpdateUser = async (req, res) => {
   try {
-
     const filter = { _id: req.userID };
     const update = { ...req.body };
     // console.log(update);
@@ -29,7 +30,6 @@ const UpdateUser = async (req, res) => {
     const update_user = await UserModel.findOne(filter).select({ password: 0 });
 
     return res.send({ message: "User Update", data: update_user });
-
   } catch (e) {
     res.status(404).send({ message: e.message });
   }

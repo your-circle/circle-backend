@@ -10,13 +10,21 @@ const {
   getAllProject,
   getProjectById,
   JoinRequestForProject,
-  AddMemberInProject
+  AddMemberInProject,
+  GetMyProjects,
 } = require("../controllers/project/index");
 
 router.get("/all", getAllProject);
 router.get("/:id", getProjectById);
-router.post("/add-project",Authenticate,Validator,ProjectValidation,AddProject);
-router.post("/join-request/:id",Authenticate,JoinRequestForProject)
-router.post("/add-member/:id",Authenticate,AddMemberInProject)
+router.post(
+  "/add-project",
+  Authenticate,
+  Validator,
+  ProjectValidation,
+  AddProject
+);
+router.post("/join-request/:id", Authenticate, JoinRequestForProject);
+router.post("/add-member/:id", Authenticate, AddMemberInProject);
+router.get("/my-projects/:id", Authenticate, GetMyProjects);
 
 module.exports = router;
