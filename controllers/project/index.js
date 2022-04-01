@@ -151,11 +151,8 @@ const GetMyProjects = async (req, res) => {
   try {
     var id = req.params.id;
     // console.log(name);
-    const ProjectList = UserModel.findById(id).populate("projects");
-    res.send({
-      message: "Following are user's project",
-      data: ProjectList,
-    });
+    const ProjectList = await UserModel.findById(id).populate("projects");
+    res.send({ message: "following are user projects", data: ProjectList });
   } catch (error) {
     res.status(400).send(error.message);
   }
