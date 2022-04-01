@@ -3,14 +3,14 @@ const { NotificationModel } = require("../../db/models/notifications");
 
 const GetNotification = async (req, res) => {
   try {
-    console.log(req.rootUser);
-    var username = req.rootUser.name;
-    const NotificationList = await NotificationModel.find({
-      name: username,
-    });
+    var userId = req.userID;
+    console.log(userId,req.rootUser);
+    
+    const NotificationList = await NotificationModel.findOne({user: userId});
 
+  
     res.send({
-      message: "Following are user projects",
+      message: "Following are Notifications",
       data: NotificationList,
     });
   } catch (error) {
@@ -20,19 +20,24 @@ const GetNotification = async (req, res) => {
 
 const MarkNotification = async (req, res) => {
   try {
-    var username = req.rootUser.name;
-    const NotificationList = await NotificationModel.find({
-      name: username,
+    var userId = req.userID;
+    const Notification = await NotificationModel.findOne({
+      user: userId,
     });
 
-    NotificationList.forEach(function (NotificationList) {
-      NotificationList.isOpen = true;
-    });
+    if(!Notification){
+      return res.status(404).send({message:"Notifications is Not fount"})
+    }
 
+    Notification.isOpen = false;
+
+    await Notification.save()
+   
     res.status(200).send({
       message: "Notifications are marked read",
-      data: NotificationList,
+      data: Notification,
     });
+
   } catch (error) {
     res.status(400).send({ message: error.message });
   }

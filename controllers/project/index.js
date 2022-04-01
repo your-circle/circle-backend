@@ -1,6 +1,6 @@
 const { ProjectModel } = require("../../db/models/project");
-const {ProjectJoin}= require("../notifications/const")
-const {AddNotification}= require("../notifications/data")
+const {ProjectJoin}= require("../notification/const")
+const {AddNotification}= require("../notification/data")
 const {GetProjectById} =require('./data')
 
 
