@@ -1,4 +1,4 @@
-const { ProjectModel } = require("../../db/Schema");
+const { ProjectModel } = require("../../db/models/project");
 
 const AddProject = async (req, res) => {
   try {
