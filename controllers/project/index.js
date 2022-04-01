@@ -1,7 +1,8 @@
 const { ProjectModel } = require("../../db/models/project");
-const {ProjectJoin}= require("../notification/const")
+const {ProjectJoin,ProjectAdd}= require("../notification/const")
 const {AddNotification}= require("../notification/data")
 const {GetProjectById} =require('./data')
+const mongoose = require("mongoose");
 
 
 
@@ -86,6 +87,10 @@ const JoinRequestForProject=async (req, res) => {
     const project = await GetProjectById(req);
     const user=req.rootUser;
 
+    if(project.team.includes(user._id)){
+      return res.status(400).send({message:"User is in Team"});
+    }
+
     if(project.request_list.includes(user._id)){
       return res.status(400).send({message:"User is in request List"});
     }
@@ -110,9 +115,45 @@ const JoinRequestForProject=async (req, res) => {
 
 const AddMemberInProject=async (req, res) => {
   try {
-    const project = await GetProjectById(req,res);
-    res.send({ message: "Project by this id is as follow", data: project });
+    const project = await GetProjectById(req);
+    const user=req.rootUser
+    const peerID=mongoose.Types.ObjectId(req.body.userID);
+
+    console.log(project.creator,user._id)
+    
+    if(!project.creator.equals(user._id)){
+      return res.status(404).send({ message:"You don't own the project"});
+    }
+
+    if(!project.request_list.includes(peerID)){
+      return res.status(400).send({message:"User is not in request List"});
+    }
+    
+    project.request_list.pull(peerID)
+
+    if(project.team.includes(peerID)){
+      return res.status(400).send({message:"User is in Team"});
+    }
+
+    project.team.push(peerID)
+
+    await project.save(async (error)=>{
+      if(error){
+        return res.status(404).send({ message: err });
+      }
+      
+      req.projectId=project._id;
+      req.projectTitle=project.title;
+      req.projectCreator=project.creator;
+      req.userID=peerID;
+
+      await AddNotification(req,res,ProjectAdd)  
+
+    })
+
+
   } catch (error) {
+    console.log(error)
     res.status(404).send({ message: "Sorry! no project by this id exists" });
   }
 };

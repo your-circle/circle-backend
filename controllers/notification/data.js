@@ -9,7 +9,7 @@ const AddNotification=async (req,res,type) => {
 
     switch (type) {
         case ProjectAdd:
-            
+            AddMemberInProject(req,res,type)
             break;
     
         case ProjectJoin:
@@ -34,7 +34,6 @@ const AddJoinNotification= async (req,res, type) => {
         type:type,
         project:req.projectId
     }
-    console.log(notification);
 
     notificationsUser.notifications.push(notification)
     notificationsUser.isOpen=true,
@@ -45,6 +44,29 @@ const AddJoinNotification= async (req,res, type) => {
         }
         
         return res.status(200).send({ message:"Join request made successfully"})
+
+    })
+
+}
+
+const AddMemberInProject= async (req,res, type) => {
+    const notificationsUser=await AddNotificationIfNotExits(req.userID);
+
+    const notification={
+        title:`You are know part this ${req.projectTitle} project`,
+        type:type,
+        project:req.projectId
+    }
+
+    notificationsUser.notifications.push(notification)
+    notificationsUser.isOpen=true,
+    await notificationsUser.save((error)=>{
+
+        if(error){
+            return res.status(404).send({ message: err });
+        }
+        
+        return res.status(200).send({ message:"Member added  successfully"})
 
     })
 
