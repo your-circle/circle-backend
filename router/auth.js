@@ -3,7 +3,7 @@ const router = express.Router();
 
 const { Authenticate } = require("../middleware/authenticate")
 const { Validator } = require("../middleware/validator")
-const { SignUpValidation ,LoginValidation} = require("../controllers/auth/validation");
+const { SignUpValidation ,LoginValidation} = require("../utils/validator/auth");
 
 const { 
     SignIn, 
