@@ -1,8 +1,14 @@
-const { NotificationModel } = require("../../db/Schema");
+const { forEach } = require("lodash");
+const { NotificationModel } = require("../../db/models/notifications");
 
 const GetNotification = async (req, res) => {
   try {
-    const NotificationList = await NotificationModel.find({});
+    console.log(req.rootUser);
+    var username = req.rootUser.name;
+    const NotificationList = await NotificationModel.find({
+      name: username,
+    });
+
     res.send({
       message: "Following are user projects",
       data: NotificationList,
@@ -14,13 +20,19 @@ const GetNotification = async (req, res) => {
 
 const MarkNotification = async (req, res) => {
   try {
-    var id = req.params.id;
-    const hasNotification = await NotificationModel.findById(id);
+    var username = req.rootUser.name;
+    const NotificationList = await NotificationModel.find({
+      name: username,
+    });
 
-    if (hasNotification) {
-      hasNotification.isOpen = true;
-      res.status(200);
-    }
+    NotificationList.forEach(function (NotificationList) {
+      NotificationList.isOpen = true;
+    });
+
+    res.status(200).send({
+      message: "Notifications are marked read",
+      data: NotificationList,
+    });
   } catch (error) {
     res.status(400).send({ message: error.message });
   }
