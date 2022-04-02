@@ -33,7 +33,7 @@ const SignUp = async (req, res) => {
         .status(200)
         .send({
           message: "User registered successfully",
-          data: { ..._.pick(toAddUser, [ '_id', 'name', 'email' ]), token: token },
+          data: { ..._.pick(newUser, [ '_id', 'name', 'email' ]), token: token },
         });
     });
 

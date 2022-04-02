@@ -22,7 +22,8 @@ const AddProject = async (req, res) => {
     const User = req.rootUser;
     const Project = {
       ...ProjectData,
-      creator: User._id,
+      creator_id: User._id,
+      creator_name:User.name
     };
 
     const newProject = new ProjectModel(Project);
@@ -45,7 +46,7 @@ const AddProject = async (req, res) => {
           data: {
             title: Project.title,
             description: Project.description,
-            creator: Project.creator,
+            creator_id: Project.creator_id,
           },
         });
       });
@@ -67,7 +68,8 @@ const getAllProject = async (req, res) => {
 const getProjectById = async (req, res) => {
   try {
     var id = req.params.id;
-    const project = await ProjectModel.findById(id);
+    const project = await ProjectModel.findById(id).populate("request_list","_id name").populate("team","_id name");
+    
     res.send({ message: "Project by this id is as follow", data: project });
   } catch (error) {
     res.status(404).send({ message: "Sorry! no project by this id exists" });
@@ -96,7 +98,7 @@ const JoinRequestForProject = async (req, res) => {
 
       req.projectId = project._id;
       req.projectTitle = project.title;
-      req.projectCreator = project.creator;
+      req.projectCreator = project.creator_id;
       await AddNotification(req, res, ProjectJoin);
     });
   } catch (error) {
@@ -111,9 +113,9 @@ const AddMemberInProject = async (req, res) => {
     const user = req.rootUser;
     const peerID = mongoose.Types.ObjectId(req.body.userID);
 
-    console.log(project.creator, user._id);
+    // console.log(project.creator, user._id);
 
-    if (!project.creator.equals(user._id)) {
+    if (!project.creator_id.equals(user._id)) {
       return res.status(404).send({ message: "You don't own the project" });
     }
 
@@ -136,7 +138,7 @@ const AddMemberInProject = async (req, res) => {
 
       req.projectId = project._id;
       req.projectTitle = project.title;
-      req.projectCreator = project.creator;
+      req.projectCreator = project.creator_id;
       req.userID = peerID;
 
       await AddNotification(req, res, ProjectAdd);
