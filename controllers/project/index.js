@@ -23,7 +23,7 @@ const AddProject = async (req, res) => {
     const Project = {
       ...ProjectData,
       creator_id: User._id,
-      creator_name:User.name
+      creator_name: User.name,
     };
 
     const newProject = new ProjectModel(Project);
@@ -68,8 +68,10 @@ const getAllProject = async (req, res) => {
 const getProjectById = async (req, res) => {
   try {
     var id = req.params.id;
-    const project = await ProjectModel.findById(id).populate("request_list","_id name").populate("team","_id name");
-    
+    const project = await ProjectModel.findById(id)
+      .populate("request_list", "_id name")
+      .populate("team", "_id name");
+
     res.send({ message: "Project by this id is as follow", data: project });
   } catch (error) {
     res.status(404).send({ message: "Sorry! no project by this id exists" });
@@ -154,9 +156,29 @@ const GetMyProjects = async (req, res) => {
     var id = req.params.id;
     // console.log(name);
     const ProjectList = await UserModel.findById(id).populate("projects");
-    res.send({ message: "following are user projects", data: ProjectList.projects });
+    res.send({
+      message: "following are user projects",
+      data: ProjectList.projects,
+    });
   } catch (error) {
     res.status(400).send(error.message);
+  }
+};
+
+const UpdateProject = async (req, res) => {
+  try {
+    const filter = { id: req.params.id };
+    const update = { ...req.body };
+
+    await ProjectModel.findOneAndUpdate(filter, update);
+    const update_project_data = await ProjectModel.findOne(filter);
+
+    return res.send({
+      message: "Updated the project data successfully",
+      data: update_project_data,
+    });
+  } catch (e) {
+    res.status(404).send({ message: e.message });
   }
 };
 
@@ -165,4 +187,4 @@ exports.getAllProject = getAllProject;
 exports.AddProject = AddProject;
 exports.AddMemberInProject = AddMemberInProject;
 exports.JoinRequestForProject = JoinRequestForProject;
-exports.GetMyProjects = GetMyProjects;
+exports.UpdateProject = UpdateProject;
