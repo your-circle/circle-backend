@@ -36,9 +36,9 @@ const AddProject = async (req, res) => {
 
       await User.save((err) => {
         if (err) {
-          return res
-            .status(404)
-            .send({ message: "Some Error in add project to user list" });
+          return res.status(404).send({
+            message: "Some Error in add project to user list",
+          });
         }
 
         return res.status(200).send({
@@ -72,9 +72,33 @@ const getProjectById = async (req, res) => {
       .populate("request_list", "_id name")
       .populate("team", "_id name");
 
+    if (project == null) {
+      return res.status(404).send({ message: "Project is not exist." });
+    }
+
     res.send({ message: "Project by this id is as follow", data: project });
   } catch (error) {
-    res.status(404).send({ message: "Sorry! no project by this id exists" });
+    res.status(404).send({
+      message: "Sorry! no project by this id exists",
+    });
+  }
+};
+
+const deleteProjectById = async (req, res) => {
+  try {
+    const project = await GetProjectById(req);
+
+    if (!project.creator_id.equals(req.rootUser._id)) {
+      return res.status(404).send({ message: "You don't own the project" });
+    }
+
+    await ProjectModel.findByIdAndDelete(project._id);
+    res.send({ message: "Project is Deleted successfully", data: null });
+  } catch (error) {
+    console.log(error);
+    res.status(404).send({
+      message: "Sorry! no project by this id exists",
+    });
   }
 };
 
@@ -105,7 +129,9 @@ const JoinRequestForProject = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(404).send({ message: "Sorry! no project by this id exists" });
+    res.status(404).send({
+      message: "Sorry! no project by this id exists",
+    });
   }
 };
 
@@ -147,7 +173,9 @@ const AddMemberInProject = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(404).send({ message: "Sorry! no project by this id exists" });
+    res.status(404).send({
+      message: "Sorry! no project by this id exists",
+    });
   }
 };
 
@@ -168,9 +196,21 @@ const GetMyProjects = async (req, res) => {
 const UpdateProject = async (req, res) => {
   try {
     const filter = { id: req.params.id };
-    const update = { ...req.body };
+    const update = {
+      title: req.body.title,
+      description: req.body.description,
+      tech: req.body.tech,
+      need: req.body.need,
+    };
+
+    const project = await GetProjectById(req);
+
+    if (!project.creator_id.equals(req.rootUser._id)) {
+      return res.status(404).send({ message: "You don't own the project" });
+    }
 
     await ProjectModel.findOneAndUpdate(filter, update);
+
     const update_project_data = await ProjectModel.findOne(filter);
 
     return res.send({
@@ -188,3 +228,5 @@ exports.AddProject = AddProject;
 exports.AddMemberInProject = AddMemberInProject;
 exports.JoinRequestForProject = JoinRequestForProject;
 exports.UpdateProject = UpdateProject;
+exports.deleteProjectById = deleteProjectById;
+exports.GetMyProjects = GetMyProjects;
