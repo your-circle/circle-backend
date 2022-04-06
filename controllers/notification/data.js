@@ -1,96 +1,87 @@
 const { NotificationModel } = require("../../db/models/notifications");
-const {ProjectAdd,ProjectJoin,UserInfo}= require("./const")
+const { ProjectAdd, ProjectJoin, UserInfo } = require("./const");
 
+const {
+  SuccessResponseHandler,
+  ErrorResponseHandler,
+} = require("../../utils/response_handler");
 
+const { ProjectUpdateMessage } = require("../../utils/message");
 
-const AddNotification=async (req,res,type) => {
+const AddNotification = async (req, res, type) => {
+  switch (type) {
+    case ProjectAdd:
+      AddMemberInProject(req, res, type);
+      break;
 
-    
+    case ProjectJoin:
+      AddJoinNotification(req, res, type);
+      break;
 
-    switch (type) {
-        case ProjectAdd:
-            AddMemberInProject(req,res,type)
-            break;
-    
-        case ProjectJoin:
-            AddJoinNotification(req,res,type);
-            break;
-    
-        case UserInfo:
-            
-            break;
-    
-        default:
-            break;
-    }
-}
+    case UserInfo:
+      break;
 
+    default:
+      break;
+  }
+};
 
-const AddJoinNotification= async (req,res, type) => {
-    const notificationsUser=await AddNotificationIfNotExits(req.projectCreator);
+const AddJoinNotification = async (req, res, type) => {
+  const notificationsUser = await AddNotificationIfNotExits(req.projectCreator);
 
-    const notification={
-        title:`peer ${req.rootUser.name} wants to join your ${req.projectTitle} project`,
-        type:type,
-        project:req.projectId
-    }
+  const notification = {
+    title: `peer ${req.rootUser.name} wants to join your ${req.projectTitle} project`,
+    type: type,
+    project: req.projectId,
+  };
 
-    notificationsUser.notifications.push(notification)
-    notificationsUser.isOpen=true,
-    await notificationsUser.save((error)=>{
+  notificationsUser.notifications.push(notification);
+  (notificationsUser.isOpen = true),
+    await notificationsUser.save((error) => {
+      if (error) {
+        return ErrorResponseHandler(res, 404, error._message);
+      }
 
-        if(error){
-            return res.status(404).send({ message: err });
-        }
-        
-        return res.status(200).send({ message:"Join request made successfully"})
+      return SuccessResponseHandler(res, 200, ProjectUpdateMessage);
+    });
+};
 
-    })
+const AddMemberInProject = async (req, res, type) => {
+  const notificationsUser = await AddNotificationIfNotExits(req.userID);
 
-}
+  const notification = {
+    title: `You are know part this ${req.projectTitle} project`,
+    type: type,
+    project: req.projectId,
+  };
 
-const AddMemberInProject= async (req,res, type) => {
-    const notificationsUser=await AddNotificationIfNotExits(req.userID);
+  notificationsUser.notifications.push(notification);
+  (notificationsUser.isOpen = true),
+    await notificationsUser.save((error) => {
+      if (error) {
+        return ErrorResponseHandler(res, 404, error._message);
+      }
 
-    const notification={
-        title:`You are know part this ${req.projectTitle} project`,
-        type:type,
-        project:req.projectId
-    }
+      return SuccessResponseHandler(res, 200, ProjectUpdateMessage);
+    });
+};
 
-    notificationsUser.notifications.push(notification)
-    notificationsUser.isOpen=true,
-    await notificationsUser.save((error)=>{
+const AddNotificationIfNotExits = async (id) => {
+  let user = await GetNotificationUser(id);
+  if (!user) {
+    const newNotification = await NotificationModel({
+      user: id,
+      isOpen: false,
+    });
+    await newNotification.save();
+    user = await GetNotificationUser(id);
+  }
+  return user;
+};
 
-        if(error){
-            return res.status(404).send({ message: err });
-        }
-        
-        return res.status(200).send({ message:"Member added  successfully"})
+const GetNotificationUser = async (id) => {
+  const user = await NotificationModel.findOne({ user: id });
+  return user;
+};
 
-    })
-
-}
-
-
-
-
-const AddNotificationIfNotExits=async (id) => {
-
-    let user=await GetNotificationUser(id);
-    if(!user){
-        
-        const newNotification=await NotificationModel({user:id,isOpen:false})
-        await newNotification.save();
-        user=await GetNotificationUser(id);
-    }
-    return user;
-}
-
-const GetNotificationUser = async (id)=>{
-    const user=await NotificationModel.findOne({user:id});
-    return user;
-}
-
-
-exports.AddNotification=AddNotification;
+exports.AddNotification = AddNotification;

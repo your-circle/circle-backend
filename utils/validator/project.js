@@ -6,7 +6,7 @@ const ProjectValidation = [
     "tech",
     "tech must be an array and atleast one tech-stack specification is required"
   ).isArray({ min: 1 }),
-  check("open_to", "open_to must be array ").isArray(),
+  check("need", "need must be array ").isArray(),
 ];
 
 exports.ProjectValidation = ProjectValidation;

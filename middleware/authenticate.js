@@ -3,6 +3,7 @@ const { UserModel } = require("../db/models/user");
 const cookieParser = require("cookie-parser");
 const express = require("express");
 const app = express();
+const { ErrorResponseHandler } = require("../utils/response_handler");
 
 app.use(cookieParser());
 
@@ -29,7 +30,7 @@ const Authenticate = async (req, res, next) => {
 
     next();
   } catch (err) {
-    res.status(401).send({ message: err.message });
+    ErrorResponseHandler(res, 401, "Token is not valid");
     // console.log(err);
   }
 };

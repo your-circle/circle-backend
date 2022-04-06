@@ -1,20 +1,31 @@
 const { forEach } = require("lodash");
 const { NotificationModel } = require("../../db/models/notifications");
+const {
+  SuccessResponseHandler,
+  ErrorResponseHandler,
+} = require("../../utils/response_handler");
+
+const {
+  NotificationListMessage,
+  NotificationMarkAsReadMessage,
+  NotificationNotFoundMessage,
+} = require("../../utils/message");
 
 const GetNotification = async (req, res) => {
   try {
     var userId = req.userID;
-    console.log(userId,req.rootUser);
-    
-    const NotificationList = await NotificationModel.findOne({user: userId});
+    // console.log(userId, req.rootUser);
 
-  
-    res.send({
-      message: "Following are Notifications",
-      data: NotificationList,
-    });
+    const Notifications = await NotificationModel.findOne({ user: userId });
+
+    return SuccessResponseHandler(
+      res,
+      200,
+      NotificationListMessage,
+      Notifications
+    );
   } catch (error) {
-    res.status(404).send({ message: error.message });
+    return ErrorResponseHandler(res, 404, e.message);
   }
 };
 
@@ -25,21 +36,22 @@ const MarkNotification = async (req, res) => {
       user: userId,
     });
 
-    if(!Notification){
-      return res.status(404).send({message:"Notifications is Not fount"})
+    if (!Notification) {
+      return ErrorResponseHandler(res, 404, NotificationNotFoundMessage);
     }
 
     Notification.isOpen = false;
 
-    await Notification.save()
-   
-    res.status(200).send({
-      message: "Notifications are marked read",
-      data: Notification,
-    });
+    await Notification.save();
 
+    return SuccessResponseHandler(
+      res,
+      200,
+      NotificationMarkAsReadMessage,
+      Notification
+    );
   } catch (error) {
-    res.status(400).send({ message: error.message });
+    return ErrorResponseHandler(res, 404, e.message);
   }
 };
 
