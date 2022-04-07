@@ -21,8 +21,8 @@ router.get("/:id", getProjectById);
 router.post(
   "/add-project",
   Authenticate,
-  Validator,
   ProjectValidation,
+  Validator,
   AddProject
 );
 router.post("/join-request/:id", Authenticate, JoinRequestForProject);

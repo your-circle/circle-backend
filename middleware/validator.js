@@ -1,18 +1,18 @@
-
-const { validationResult } = require('express-validator');
+const { validationResult } = require("express-validator");
+const { ErrorResponseHandler } = require("../utils/response_handler");
 
 const Validator = async (req, res, next) => {
   try {
-
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-        throw new Error(JSON.stringify(errors.errors));
-    };
+      throw new Error(JSON.stringify(errors.errors));
+    }
 
     next();
   } catch (err) {
-    res.status(400).send({ message:JSON.parse(err.message)});
+    const message = JSON.parse(err.message)[0].msg;
+    return ErrorResponseHandler(res, 400, message);
     // console.log(err);
   }
 };

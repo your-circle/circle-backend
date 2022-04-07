@@ -5,6 +5,25 @@ const { AddNotification } = require("../notification/data");
 const { GetProjectById } = require("./data");
 const mongoose = require("mongoose");
 
+const {
+  SuccessResponseHandler,
+  ErrorResponseHandler,
+} = require("../../utils/response_handler");
+
+const {
+  ProjectWithNameExistsMessage,
+  ProjectAddedMessage,
+  ProjectNotExitsMessage,
+  ProjectDataMessage,
+  ProjectNotAuthorizedMessage,
+  ProjectDeleteMessage,
+  ProjectUserInTeamMessage,
+  ProjectUserInRequestMessage,
+  ProjectUserNotInRequestMessage,
+  ProjectUpdateMessage,
+  ProjectListMessage,
+} = require("../../utils/message");
+
 const AddProject = async (req, res) => {
   try {
     let ProjectData = req.body;
@@ -14,9 +33,7 @@ const AddProject = async (req, res) => {
     });
 
     if (hasProject) {
-      return res
-        .status(404)
-        .send({ message: "A project with a same name already exists" });
+      return ErrorResponseHandler(res, 404, ProjectWithNameExistsMessage);
     }
 
     const User = req.rootUser;
@@ -36,32 +53,31 @@ const AddProject = async (req, res) => {
 
       await User.save((err) => {
         if (err) {
-          return res.status(404).send({
-            message: "Some Error in add project to user list",
-          });
+          return ErrorResponseHandler(
+            res,
+            404,
+            "Some Error in add project to user list"
+          );
         }
 
-        return res.status(200).send({
-          message: "Project added successfully",
-          data: {
-            title: Project.title,
-            description: Project.description,
-            creator_id: Project.creator_id,
-          },
+        return SuccessResponseHandler(res, 200, ProjectAddedMessage, {
+          title: Project.title,
+          description: Project.description,
+          creator_id: Project.creator_id,
         });
       });
     });
   } catch (error) {
-    res.status(404).send({ message: error.message });
+    return ErrorResponseHandler(res, 404, error.message);
   }
 };
 
 const getAllProject = async (req, res) => {
   try {
     const list = await ProjectModel.find({});
-    res.send({ message: "All projects so far", data: list });
+    return SuccessResponseHandler(res, 200, ProjectListMessage, list);
   } catch (error) {
-    res.status(404).send({ message: error.message });
+    return ErrorResponseHandler(res, 404, error.message);
   }
 };
 
@@ -73,14 +89,12 @@ const getProjectById = async (req, res) => {
       .populate("team", "_id name");
 
     if (project == null) {
-      return res.status(404).send({ message: "Project is not exist." });
+      return ErrorResponseHandler(res, 404, ProjectNotExitsMessage);
     }
 
-    res.send({ message: "Project by this id is as follow", data: project });
+    return SuccessResponseHandler(res, 200, ProjectDataMessage, project);
   } catch (error) {
-    res.status(404).send({
-      message: "Sorry! no project by this id exists",
-    });
+    return ErrorResponseHandler(res, 404, ProjectNotExitsMessage);
   }
 };
 
@@ -89,16 +103,13 @@ const deleteProjectById = async (req, res) => {
     const project = await GetProjectById(req);
 
     if (!project.creator_id.equals(req.rootUser._id)) {
-      return res.status(404).send({ message: "You don't own the project" });
+      return ErrorResponseHandler(res, 404, ProjectNotAuthorizedMessage);
     }
 
     await ProjectModel.findByIdAndDelete(project._id);
-    res.send({ message: "Project is Deleted successfully", data: null });
+    return SuccessResponseHandler(res, 200, ProjectDeleteMessage);
   } catch (error) {
-    console.log(error);
-    res.status(404).send({
-      message: "Sorry! no project by this id exists",
-    });
+    return ErrorResponseHandler(res, 404, ProjectNotExitsMessage);
   }
 };
 
@@ -108,18 +119,18 @@ const JoinRequestForProject = async (req, res) => {
     const user = req.rootUser;
 
     if (project.team.includes(user._id)) {
-      return res.status(400).send({ message: "User is in Team" });
+      return ErrorResponseHandler(res, 404, ProjectUserInTeamMessage);
     }
 
     if (project.request_list.includes(user._id)) {
-      return res.status(400).send({ message: "User is in request List" });
+      return ErrorResponseHandler(res, 404, ProjectUserInRequestMessage);
     }
 
     project.request_list.push(user._id);
 
     await project.save(async (error) => {
       if (error) {
-        return res.status(404).send({ message: err });
+        return ErrorResponseHandler(res, 404, error._message);
       }
 
       req.projectId = project._id;
@@ -128,10 +139,7 @@ const JoinRequestForProject = async (req, res) => {
       await AddNotification(req, res, ProjectJoin);
     });
   } catch (error) {
-    console.log(error);
-    res.status(404).send({
-      message: "Sorry! no project by this id exists",
-    });
+    return ErrorResponseHandler(res, 404, ProjectNotExitsMessage);
   }
 };
 
@@ -144,24 +152,24 @@ const AddMemberInProject = async (req, res) => {
     // console.log(project.creator, user._id);
 
     if (!project.creator_id.equals(user._id)) {
-      return res.status(404).send({ message: "You don't own the project" });
+      return ErrorResponseHandler(res, 404, ProjectNotAuthorizedMessage);
     }
 
     if (!project.request_list.includes(peerID)) {
-      return res.status(400).send({ message: "User is not in request List" });
+      return ErrorResponseHandler(res, 404, ProjectUserNotInRequestMessage);
     }
 
     project.request_list.pull(peerID);
 
     if (project.team.includes(peerID)) {
-      return res.status(400).send({ message: "User is in Team" });
+      return ErrorResponseHandler(res, 404, ProjectUserInTeamMessage);
     }
 
     project.team.push(peerID);
 
     await project.save(async (error) => {
       if (error) {
-        return res.status(404).send({ message: err });
+        return ErrorResponseHandler(res, 404, error._message);
       }
 
       req.projectId = project._id;
@@ -172,10 +180,7 @@ const AddMemberInProject = async (req, res) => {
       await AddNotification(req, res, ProjectAdd);
     });
   } catch (error) {
-    console.log(error);
-    res.status(404).send({
-      message: "Sorry! no project by this id exists",
-    });
+    return ErrorResponseHandler(res, 404, ProjectNotExitsMessage);
   }
 };
 
@@ -184,12 +189,15 @@ const GetMyProjects = async (req, res) => {
     var id = req.params.id;
     // console.log(name);
     const ProjectList = await UserModel.findById(id).populate("projects");
-    res.send({
-      message: "following are user projects",
-      data: ProjectList.projects,
-    });
+
+    return SuccessResponseHandler(
+      res,
+      200,
+      ProjectListMessage,
+      ProjectList.projects
+    );
   } catch (error) {
-    res.status(400).send(error.message);
+    return ErrorResponseHandler(res, 400, ProjectNotExitsMessage);
   }
 };
 
@@ -206,19 +214,21 @@ const UpdateProject = async (req, res) => {
     const project = await GetProjectById(req);
 
     if (!project.creator_id.equals(req.rootUser._id)) {
-      return res.status(404).send({ message: "You don't own the project" });
+      return ErrorResponseHandler(res, 404, ProjectNotAuthorizedMessage);
     }
 
     await ProjectModel.findOneAndUpdate(filter, update);
 
     const update_project_data = await ProjectModel.findOne(filter);
 
-    return res.send({
-      message: "Updated the project data successfully",
-      data: update_project_data,
-    });
+    return SuccessResponseHandler(
+      res,
+      200,
+      ProjectUpdateMessage,
+      update_project_data
+    );
   } catch (e) {
-    res.status(404).send({ message: e.message });
+    return ErrorResponseHandler(res, 404, e.message);
   }
 };
 

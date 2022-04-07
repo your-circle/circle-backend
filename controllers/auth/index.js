@@ -1,23 +1,30 @@
 const { UserModel } = require("../../db/models/user");
 const bcrypt = require("bcryptjs");
-const _ = require('lodash');
-
+const _ = require("lodash");
+const {
+  SuccessResponseHandler,
+  ErrorResponseHandler,
+} = require("../../utils/response_handler");
+const {
+  UserWithEmailExitsMessage,
+  UserRegisterMessage,
+  UserLogInMessage,
+  UserNotFoundMessage,
+  InVailPasswordMessage,
+} = require("../../utils/message");
 
 const verifyAuthToken = async (req, res) => {
-  res.status(200).send({ message: "Token is not expired" });
-}
+  return SuccessResponseHandler(res, 200, "Token is not expired");
+};
 
 const SignUp = async (req, res) => {
   try {
-    
     let toAddUser = req.body;
     const hasUser = await UserModel.findOne({
       email: toAddUser.email.trim(),
     });
     if (hasUser) {
-      return res
-        .status(404)
-        .send({ message: "User with this email already exist" });
+      return ErrorResponseHandler(res, 404, UserWithEmailExitsMessage);
     }
     const User = {
       ...toAddUser,
@@ -29,47 +36,41 @@ const SignUp = async (req, res) => {
         return res.status(404).send({ message: e });
       }
       const token = await newUser.generateAuthToken();
-      return res
-        .status(200)
-        .send({
-          message: "User registered successfully",
-          data: { ..._.pick(newUser, [ '_id', 'name', 'email' ]), token: token },
-        });
-    });
 
+      return SuccessResponseHandler(res, 200, UserRegisterMessage, {
+        ..._.pick(newUser, ["_id", "name", "email"]),
+        token: token,
+      });
+    });
   } catch (e) {
-    res.status(404).send({ message: e.message });
+    return ErrorResponseHandler(res, 404, e.message);
   }
 };
 
 const SignIn = async (req, res) => {
   try {
-   
     const { email, password } = req.body;
-   
+
     const User = await UserModel.findOne({ email });
     if (!User) {
-      return res.status(404).send({ message: "User doesn't exist" });
+      return ErrorResponseHandler(res, 404, UserNotFoundMessage);
     }
-   
+
     const isPasswordSame = await bcrypt.compare(password, User.password);
     if (!isPasswordSame) {
-      return res.status(400).send({ message: "invalid password" });
+      return ErrorResponseHandler(res, 404, InVailPasswordMessage);
     }
-   
+
     const token = await User.generateAuthToken();
-   
-    res.status(200).send({
-      message: "User logged in successfully",
-      data: { ..._.pick(User, [ '_id', 'name', 'email' ]), token: token },
+
+    return SuccessResponseHandler(res, 200, UserLogInMessage, {
+      ..._.pick(User, ["_id", "name", "email"]),
+      token: token,
     });
-    
   } catch (e) {
-    res.status(404).send({ message: e.message });
+    return ErrorResponseHandler(res, 404, e.message);
   }
 };
-
-
 
 exports.SignIn = SignIn;
 exports.SignUp = SignUp;
