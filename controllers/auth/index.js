@@ -11,6 +11,7 @@ const {
   UserLogInMessage,
   UserNotFoundMessage,
   InVailPasswordMessage,
+  UserWithNameExitsMessage,
 } = require("../../utils/message");
 
 const verifyAuthToken = async (req, res) => {
@@ -20,12 +21,22 @@ const verifyAuthToken = async (req, res) => {
 const SignUp = async (req, res) => {
   try {
     let toAddUser = req.body;
-    const hasUser = await UserModel.findOne({
+    const hasUserEmail = await UserModel.findOne({
       email: toAddUser.email.trim(),
     });
-    if (hasUser) {
+
+    if (hasUserEmail) {
       return ErrorResponseHandler(res, 404, UserWithEmailExitsMessage);
     }
+
+    const hasUserName = await UserModel.findOne({
+      name: toAddUser.name.trim(),
+    });
+
+    if (hasUserName) {
+      return ErrorResponseHandler(res, 404, UserWithNameExitsMessage);
+    }
+
     const User = {
       ...toAddUser,
     };

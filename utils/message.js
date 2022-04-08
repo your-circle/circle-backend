@@ -4,6 +4,7 @@ exports.UserRegisterMessage = "User registered successfully";
 exports.UserNotFoundMessage = "User not Found";
 exports.InVailPasswordMessage = "Password is no valid";
 exports.UserLogInMessage = "User logged in successfully";
+exports.UserWithNameExitsMessage = "User with this name already exist";
 
 //notification
 exports.NotificationListMessage = "Following are Notifications";

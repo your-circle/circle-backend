@@ -147,7 +147,7 @@ const AddMemberInProject = async (req, res) => {
   try {
     const project = await GetProjectById(req);
     const user = req.rootUser;
-    const peerID = mongoose.Types.ObjectId(req.body.userID);
+    const peerID = mongoose.Types.ObjectId(req.body.user_id);
 
     // console.log(project.creator, user._id);
 
