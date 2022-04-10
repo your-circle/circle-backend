@@ -74,7 +74,20 @@ const AddProject = async (req, res) => {
 
 const getAllProject = async (req, res) => {
   try {
-    const list = await ProjectModel.find({});
+    let { page, size, sort } = req.query;
+    if (!page) {
+      page = 1;
+    }
+    if (!size) {
+      size = 10;
+    }
+    const limit = parseInt(size);
+
+    const list = await ProjectModel.find()
+      .sort({ votes: 1, _id: 1 })
+      .limit(limit);
+
+    // const list = await ProjectModel.find({});
     return SuccessResponseHandler(res, 200, ProjectListMessage, list);
   } catch (error) {
     return ErrorResponseHandler(res, 404, error.message);
