@@ -74,20 +74,27 @@ const AddProject = async (req, res) => {
 
 const getAllProject = async (req, res) => {
   try {
-    let { page, size, sort } = req.query;
-    if (!page) {
-      page = 1;
-    }
+    let { size, sort } = req.query;
+    const default_size = 2;
+
+    let limit_reminder = size % default_size;
+    let skip =
+      size > default_size
+        ? limit_reminder == 0
+          ? default_size * (size / default_size - 1)
+          : default_size * (size / default_size)
+        : 0;
+    let limit = limit_reminder == 0 ? default_size : limit_reminder;
+
     if (!size) {
       size = 10;
+      skip = 0;
     }
-    const limit = parseInt(size);
 
     const list = await ProjectModel.find()
-      .sort({ votes: 1, _id: 1 })
+      .sort({ createdAt: -1 })
+      .skip(skip)
       .limit(limit);
-
-    // const list = await ProjectModel.find({});
     return SuccessResponseHandler(res, 200, ProjectListMessage, list);
   } catch (error) {
     return ErrorResponseHandler(res, 404, error.message);
