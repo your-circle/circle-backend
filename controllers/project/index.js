@@ -23,6 +23,35 @@ const {
   ProjectUpdateMessage,
   ProjectListMessage,
 } = require("../../utils/message");
+const req = require("express/lib/request");
+
+async function pagination(req, res) {
+  let { size, sort } = req.query;
+  const default_size = 2;
+
+  let limit_reminder = size % default_size;
+  let skip =
+    size > default_size
+      ? limit_reminder == 0
+        ? default_size * (size / default_size - 1)
+        : default_size * (size / default_size)
+      : 0;
+  let limit = limit_reminder == 0 ? default_size : limit_reminder;
+
+  if (!size) {
+    size = 10;
+    skip = 0;
+  }
+
+  const list = await ProjectModel.find()
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  // console.log(list);
+
+  return list;
+}
 
 const AddProject = async (req, res) => {
   try {
@@ -74,27 +103,7 @@ const AddProject = async (req, res) => {
 
 const getAllProject = async (req, res) => {
   try {
-    let { size, sort } = req.query;
-    const default_size = 2;
-
-    let limit_reminder = size % default_size;
-    let skip =
-      size > default_size
-        ? limit_reminder == 0
-          ? default_size * (size / default_size - 1)
-          : default_size * (size / default_size)
-        : 0;
-    let limit = limit_reminder == 0 ? default_size : limit_reminder;
-
-    if (!size) {
-      size = 10;
-      skip = 0;
-    }
-
-    const list = await ProjectModel.find()
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
+    const list = await pagination(req, res);
     return SuccessResponseHandler(res, 200, ProjectListMessage, list);
   } catch (error) {
     return ErrorResponseHandler(res, 404, error.message);
