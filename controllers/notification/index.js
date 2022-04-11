@@ -24,18 +24,18 @@ const GetNotification = async (req, res) => {
         user: userId,
       },
       { notifications: 1 }
-    )
-      .skip(skip)
-      .limit(limit);
+    );
+
+    const list = Array.from(Notifications.notifications)
+      .reverse()
+      .slice(skip, skip + limit);
 
     // const Notifications = await NotificationModel.findOne({ user: userId });
 
-    return SuccessResponseHandler(
-      res,
-      200,
-      NotificationListMessage,
-      Notifications
-    );
+    return SuccessResponseHandler(res, 200, NotificationListMessage, {
+      _id: Notifications._id,
+      notifications: list,
+    });
   } catch (error) {
     return ErrorResponseHandler(res, 404, error.message);
   }
