@@ -1,5 +1,6 @@
 const { forEach } = require("lodash");
 const { NotificationModel } = require("../../db/models/notifications");
+const { GetSkipAndLimit } = require("../helper/limit");
 const {
   SuccessResponseHandler,
   ErrorResponseHandler,
@@ -14,9 +15,20 @@ const {
 const GetNotification = async (req, res) => {
   try {
     var userId = req.userID;
+    let { size, sort } = req.query;
+    const { skip, limit } = GetSkipAndLimit(size);
     // console.log(userId, req.rootUser);
 
-    const Notifications = await NotificationModel.findOne({ user: userId });
+    const Notifications = await NotificationModel.findOne(
+      {
+        user: userId,
+      },
+      { notifications: 1 }
+    )
+      .skip(skip)
+      .limit(limit);
+
+    // const Notifications = await NotificationModel.findOne({ user: userId });
 
     return SuccessResponseHandler(
       res,
@@ -25,7 +37,7 @@ const GetNotification = async (req, res) => {
       Notifications
     );
   } catch (error) {
-    return ErrorResponseHandler(res, 404, e.message);
+    return ErrorResponseHandler(res, 404, error.message);
   }
 };
 
