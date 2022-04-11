@@ -10,10 +10,19 @@ const {
   UserDataMessage,
   UserUpdateMessage,
 } = require("../../utils/message");
+const { GetSkipAndLimit } = require("../helper/limit");
 
 const getAllUser = async (req, res) => {
   try {
-    const list = await UserModel.find({}).select({ password: 0 });
+    let { size, sort } = req.query;
+
+    const { skip, limit } = GetSkipAndLimit(size);
+
+    const list = await UserModel.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
     return SuccessResponseHandler(res, 200, AllUserListMessage, list);
   } catch (e) {
     return ErrorResponseHandler(res, 404, e.message);
