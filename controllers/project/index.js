@@ -4,7 +4,7 @@ const { ProjectJoin, ProjectAdd } = require("../notification/const");
 const { AddNotification } = require("../notification/data");
 const { GetProjectById } = require("./data");
 const mongoose = require("mongoose");
-
+const { GetSkipAndLimit } = require("../helper/limit");
 const {
   SuccessResponseHandler,
   ErrorResponseHandler,
@@ -24,67 +24,6 @@ const {
   ProjectListMessage,
 } = require("../../utils/message");
 const req = require("express/lib/request");
-
-async function pagination(req, res) {
-  let { size, sort } = req.query;
-  const default_size = 2;
-
-  let limit_reminder = size % default_size;
-  let skip =
-    size > default_size
-      ? limit_reminder == 0
-        ? default_size * (size / default_size - 1)
-        : default_size * (size / default_size)
-      : 0;
-  let limit = limit_reminder == 0 ? default_size : limit_reminder;
-
-  if (!size) {
-    size = 10;
-    skip = 0;
-  }
-
-  const list = await ProjectModel.find()
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit);
-
-  // console.log(list);
-
-  return list;
-}
-
-async function paginationById(req, res) {
-  let { size, sort } = req.query;
-  const default_size = 2;
-
-  var id = req.params.id;
-  // console.log(name);
-  // const ProjectList = await UserModel.findById(id).populate("projects");
-
-  let limit_reminder = size % default_size;
-  let skip =
-    size > default_size
-      ? limit_reminder == 0
-        ? default_size * (size / default_size - 1)
-        : default_size * (size / default_size)
-      : 0;
-  let limit = limit_reminder == 0 ? default_size : limit_reminder;
-
-  if (!size) {
-    size = 10;
-    skip = 0;
-  }
-
-  const list = await UserModel.findById(id)
-    .populate("projects")
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit);
-
-  // console.log(list);
-
-  return list;
-}
 
 const AddProject = async (req, res) => {
   try {
@@ -136,7 +75,14 @@ const AddProject = async (req, res) => {
 
 const getAllProject = async (req, res) => {
   try {
-    const list = await pagination(req, res);
+    let { size, sort } = req.query;
+    const { skip, limit } = GetSkipAndLimit(size);
+
+    const list = await ProjectModel.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
     return SuccessResponseHandler(res, 200, ProjectListMessage, list);
   } catch (error) {
     return ErrorResponseHandler(res, 404, error.message);
@@ -248,18 +194,22 @@ const AddMemberInProject = async (req, res) => {
 
 const GetMyProjects = async (req, res) => {
   try {
-    var id = req.params.id;
-    // console.log(name);
-    const ProjectList = await paginationById(req, res);
-    // const ProjectList = await UserModel.findById(id).populate("projects");
+    let { size, sort } = req.query;
 
-    return SuccessResponseHandler(
-      res,
-      200,
-      ProjectListMessage,
-      ProjectList.projects
-    );
+    var id = req.params.id;
+
+    const { skip, limit } = GetSkipAndLimit(size);
+
+    console.log({ skip, limit });
+
+    const User = await UserModel.findById(id).populate({
+      path: "projects",
+      options: { sort: { createdAt: -1 }, skip: skip, limit: limit },
+    });
+
+    return SuccessResponseHandler(res, 200, ProjectListMessage, User.projects);
   } catch (error) {
+    console.log(error);
     return ErrorResponseHandler(res, 400, ProjectNotExitsMessage);
   }
 };
