@@ -53,6 +53,39 @@ async function pagination(req, res) {
   return list;
 }
 
+async function paginationById(req, res) {
+  let { size, sort } = req.query;
+  const default_size = 2;
+
+  var id = req.params.id;
+  // console.log(name);
+  // const ProjectList = await UserModel.findById(id).populate("projects");
+
+  let limit_reminder = size % default_size;
+  let skip =
+    size > default_size
+      ? limit_reminder == 0
+        ? default_size * (size / default_size - 1)
+        : default_size * (size / default_size)
+      : 0;
+  let limit = limit_reminder == 0 ? default_size : limit_reminder;
+
+  if (!size) {
+    size = 10;
+    skip = 0;
+  }
+
+  const list = await UserModel.findById(id)
+    .populate("projects")
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  // console.log(list);
+
+  return list;
+}
+
 const AddProject = async (req, res) => {
   try {
     let ProjectData = req.body;
@@ -217,7 +250,8 @@ const GetMyProjects = async (req, res) => {
   try {
     var id = req.params.id;
     // console.log(name);
-    const ProjectList = await UserModel.findById(id).populate("projects");
+    const ProjectList = await paginationById(req, res);
+    // const ProjectList = await UserModel.findById(id).populate("projects");
 
     return SuccessResponseHandler(
       res,
