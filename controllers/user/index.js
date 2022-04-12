@@ -15,10 +15,10 @@ const { GetSkipAndLimit } = require("../helper/limit");
 const getAllUser = async (req, res) => {
   try {
     let { size, sort } = req.query;
-
+    let { name, role } = req.query;
     const { skip, limit } = GetSkipAndLimit(size);
 
-    const list = await UserModel.find()
+    const list = await UserModel.find({ $or: [{ name: name }, { role: role }] })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);

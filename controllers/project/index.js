@@ -76,12 +76,31 @@ const AddProject = async (req, res) => {
 const getAllProject = async (req, res) => {
   try {
     let { size, sort } = req.query;
+    var title = req.query.title;
+    // console.log(title);
+    let tech = req.query.tech;
+    let need = req.query.need;
+    var query = {};
+    if (title) {
+      query.title = title;
+    }
+    if (need) {
+      query.need = need;
+    }
+
     const { skip, limit } = GetSkipAndLimit(size);
 
-    const list = await ProjectModel.find()
+    // console.log(filters);
+
+    const list = await ProjectModel.find(
+      { need: [query.need] },
+      { title: query.title }
+    )
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
+
+    // console.log(list);
 
     return SuccessResponseHandler(res, 200, ProjectListMessage, list);
   } catch (error) {
