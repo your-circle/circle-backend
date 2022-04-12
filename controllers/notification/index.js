@@ -19,22 +19,28 @@ const GetNotification = async (req, res) => {
     const { skip, limit } = GetSkipAndLimit(size);
     // console.log(userId, req.rootUser);
 
-    const Notifications = await NotificationModel.findOne(
-      {
-        user: userId,
-      },
-      { notifications: 1 }
-    );
+    // const Notifications = await NotificationModel.findOne({
+    //   user: userId,
+    // });
+    // .skip(skip)
+    // .limit(limit);
 
-    const list = Array.from(Notifications.notifications)
-      .reverse()
-      .slice(skip, skip + limit);
+    const aggregate = await NotificationModel.aggregate([
+      { $match: { user: userId } },
+      { $project: { _id: 0, notifications: 1 } },
+      { $skip: 2 },
+      { $limit: 2 },
+    ]).unwind("notifications");
+
+    // const list = Array.from(Notifications.notifications)
+    //   .reverse()
+    //   .slice(skip, skip + limit);
 
     // const Notifications = await NotificationModel.findOne({ user: userId });
 
     return SuccessResponseHandler(res, 200, NotificationListMessage, {
-      _id: Notifications._id,
-      notifications: list,
+      // _id: Notifications._id,
+      notifications: aggregate,
     });
   } catch (error) {
     return ErrorResponseHandler(res, 404, error.message);
