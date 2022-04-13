@@ -75,24 +75,36 @@ const AddProject = async (req, res) => {
 
 const getAllProject = async (req, res) => {
   try {
-    let { size, sort } = req.query;
-    var title = req.query.title;
-    // console.log(title);
-    let tech = req.query.tech;
-    let need = req.query.need;
+    var { title, tech, need } = req.body;
 
-    const { skip, limit } = GetSkipAndLimit(size);
+    const { skip, limit } = GetSkipAndLimit(req);
 
     // console.log(filters);
 
-    const list = await ProjectModel.find({
-      $or: [{ title: title }, { need: [need] }, { tech: [tech] }],
-    })
+    let query = {
+      $and: [],
+    };
+
+    if (title) {
+      query["$and"].push({ title: { $regex: title, $options: "i" } });
+    }
+
+    if (need && need.length > 0) {
+      query["$and"].push({ need: { $in: need } });
+    }
+
+    if (tech && tech.length > 0) {
+      query["$and"].push({ tech: { $in: tech } });
+    }
+
+    if (query["$and"].length == 0) {
+      query = {};
+    }
+
+    let list = await ProjectModel.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
-
-    // console.log(list);
 
     return SuccessResponseHandler(res, 200, ProjectListMessage, list);
   } catch (error) {
@@ -209,7 +221,7 @@ const GetMyProjects = async (req, res) => {
 
     var id = req.params.id;
 
-    const { skip, limit } = GetSkipAndLimit(size);
+    const { skip, limit } = GetSkipAndLimit(req);
 
     console.log({ skip, limit });
 

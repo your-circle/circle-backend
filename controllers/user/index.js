@@ -14,11 +14,34 @@ const { GetSkipAndLimit } = require("../helper/limit");
 
 const getAllUser = async (req, res) => {
   try {
-    let { size, sort } = req.query;
-    let { name, role } = req.query;
-    const { skip, limit } = GetSkipAndLimit(size);
+    let { name, role, skills, open_to } = req.body;
+    const { skip, limit } = GetSkipAndLimit(req);
 
-    const list = await UserModel.find({ $or: [{ name: name }, { role: role }] })
+    let query = {
+      $and: [],
+    };
+
+    if (name) {
+      query["$and"].push({ name: { $regex: name, $options: "i" } });
+    }
+
+    if (role) {
+      query["$and"].push({ role: role });
+    }
+
+    if (skills && skills.length > 0) {
+      query["$and"].push({ skills: { $in: skills } });
+    }
+
+    if (open_to && open_to.length > 0) {
+      query["$and"].push({ open_to: { $in: open_to } });
+    }
+
+    if (query["$and"].length == 0) {
+      query = {};
+    }
+
+    const list = await UserModel.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);

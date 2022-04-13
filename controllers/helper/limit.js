@@ -1,18 +1,31 @@
-const GetSkipAndLimit = (size) => {
-  const default_size = 2;
+const GetSkipAndLimit = (req) => {
+  const default_size = 50;
 
-  if (!size) {
-    return { skip: 0, limit: default_size };
+  let start = +req.body.from;
+  let end = +req.body.to;
+
+  if (!start || !end) {
+    throw new Error(
+      "Invalid from-to size, make sure (1<=from<=end<=n and end-from+1<=" +
+        default_size +
+        ")"
+    );
   }
 
-  let limit_reminder = size % default_size;
-  let skip =
-    size > default_size
-      ? limit_reminder == 0
-        ? default_size * (Math.floor(size / default_size) - 1)
-        : default_size * Math.floor(size / default_size)
-      : 0;
-  let limit = limit_reminder == 0 ? default_size : limit_reminder;
+  start = start - 1;
+
+  const diff = end - start;
+
+  if (diff < 0 || diff > default_size || start < 0) {
+    throw new Error(
+      "Invalid from-to size, make sure (1<=from<=end<=n and end-from+1<=" +
+        default_size +
+        ")"
+    );
+  }
+
+  let skip = start;
+  let limit = diff;
 
   return { skip: skip, limit: limit };
 };

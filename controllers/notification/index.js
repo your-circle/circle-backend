@@ -10,13 +10,25 @@ const {
   NotificationMarkAsReadMessage,
   NotificationNotFoundMessage,
 } = require("../../utils/message");
+const { GetSkipAndLimit } = require("../helper/limit");
 
 const GetNotification = async (req, res) => {
   try {
     var userId = req.userID;
     // console.log(userId, req.rootUser);
 
-    const Notifications = await NotificationModel.findOne({ user: userId });
+    const { skip, limit } = GetSkipAndLimit(req);
+
+    const Notifications = await NotificationModel.findOne({
+      user: userId,
+    }).sort({ createdAt: -1 });
+
+    const list = Array.from(Notifications.notifications).slice(
+      skip,
+      skip + limit
+    );
+
+    Notifications.notifications = list;
 
     return SuccessResponseHandler(
       res,
@@ -25,7 +37,7 @@ const GetNotification = async (req, res) => {
       Notifications
     );
   } catch (error) {
-    return ErrorResponseHandler(res, 404, e.message);
+    return ErrorResponseHandler(res, 404, error.message);
   }
 };
 
