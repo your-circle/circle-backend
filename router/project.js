@@ -16,7 +16,7 @@ const {
   deleteProjectById,
 } = require("../controllers/project/index");
 
-router.get("/all", getAllProject);
+router.post("/all", getAllProject);
 router.get("/:id", getProjectById);
 router.post(
   "/add-project",

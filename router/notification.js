@@ -9,7 +9,7 @@ const {
   MarkNotification,
 } = require("../controllers/notification/index");
 
-router.get("/all", Authenticate, Validator, GetNotification);
+router.post("/all", Authenticate, Validator, GetNotification);
 router.post("/mark_read", Authenticate, Validator, MarkNotification);
 
 module.exports = router;
