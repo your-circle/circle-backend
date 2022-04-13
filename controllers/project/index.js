@@ -75,10 +75,33 @@ const AddProject = async (req, res) => {
 
 const getAllProject = async (req, res) => {
   try {
-    let { size, sort } = req.query;
-    const { skip, limit } = GetSkipAndLimit(size);
+    var { title, tech, need } = req.body;
 
-    const list = await ProjectModel.find()
+    const { skip, limit } = GetSkipAndLimit(req);
+
+    // console.log(filters);
+
+    let query = {
+      $and: [],
+    };
+
+    if (title) {
+      query["$and"].push({ title: { $regex: title, $options: "i" } });
+    }
+
+    if (need && need.length > 0) {
+      query["$and"].push({ need: { $in: need } });
+    }
+
+    if (tech && tech.length > 0) {
+      query["$and"].push({ tech: { $in: tech } });
+    }
+
+    if (query["$and"].length == 0) {
+      query = {};
+    }
+
+    let list = await ProjectModel.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
@@ -198,7 +221,7 @@ const GetMyProjects = async (req, res) => {
 
     var id = req.params.id;
 
-    const { skip, limit } = GetSkipAndLimit(size);
+    const { skip, limit } = GetSkipAndLimit(req);
 
     console.log({ skip, limit });
 
