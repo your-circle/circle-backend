@@ -239,13 +239,15 @@ const GetMyProjects = async (req, res) => {
 
 const UpdateProject = async (req, res) => {
   try {
-    const filter = { id: req.params.id };
+    const filter = { _id: req.params.id };
     const update = {
       title: req.body.title,
       description: req.body.description,
       tech: req.body.tech,
       need: req.body.need,
     };
+
+    console.log(update);
 
     const project = await GetProjectById(req);
 

@@ -23,6 +23,10 @@ const GetNotification = async (req, res) => {
       user: userId,
     }).sort({ createdAt: -1 });
 
+    if (Notifications == null) {
+      return SuccessResponseHandler(res, 200, NotificationListMessage, []);
+    }
+
     const list = Array.from(Notifications.notifications).slice(
       skip,
       skip + limit
