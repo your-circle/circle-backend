@@ -27,7 +27,7 @@ router.post(
 );
 router.post("/join-request/:id", Authenticate, JoinRequestForProject);
 router.post("/add-member/:id", Authenticate, AddMemberInProject);
-router.get("/my-projects/:id", Authenticate, GetMyProjects);
+router.post("/my-projects/:id", Authenticate, GetMyProjects);
 router.put("/update/:id", Authenticate, UpdateProject);
 router.delete("/delete/:id", Authenticate, deleteProjectById);
 

@@ -106,6 +106,8 @@ const getAllProject = async (req, res) => {
       .skip(skip)
       .limit(limit);
 
+    console.log(list.length);
+
     return SuccessResponseHandler(res, 200, ProjectListMessage, list);
   } catch (error) {
     return ErrorResponseHandler(res, 404, error.message);
@@ -217,8 +219,6 @@ const AddMemberInProject = async (req, res) => {
 
 const GetMyProjects = async (req, res) => {
   try {
-    let { size, sort } = req.query;
-
     var id = req.params.id;
 
     const { skip, limit } = GetSkipAndLimit(req);
