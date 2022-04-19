@@ -25,6 +25,8 @@ exports.ProjectUpdateMessage = "Project Update";
 exports.ProjectUserInTeamMessage = "User is in Team";
 exports.ProjectUserInRequestMessage = "User is in request List";
 exports.ProjectUserNotInRequestMessage = "User is in not request List";
+exports.ProjectResponseAddMessage = "User response saved successfully";
+exports.ProjectResponseAddError = "Sorry! Couldn't send your response";
 
 //user
 exports.AllUserListMessage = "User list";

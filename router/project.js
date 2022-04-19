@@ -14,6 +14,7 @@ const {
   GetMyProjects,
   UpdateProject,
   deleteProjectById,
+  JoinProjectForm,
 } = require("../controllers/project/index");
 
 router.post("/all", getAllProject);
@@ -26,6 +27,7 @@ router.post(
   AddProject
 );
 router.post("/join-request/:id", Authenticate, JoinRequestForProject);
+router.post("/form/:id", Authenticate, JoinProjectForm);
 router.post("/add-member/:id", Authenticate, AddMemberInProject);
 router.post("/my-projects/:id", Authenticate, GetMyProjects);
 router.put("/update/:id", Authenticate, UpdateProject);

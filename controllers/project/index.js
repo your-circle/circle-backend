@@ -1,4 +1,5 @@
 const { ProjectModel } = require("../../db/models/project");
+const { FormModel } = require("../../db/models/projectForm");
 const { UserModel } = require("../../db/models/user");
 const { ProjectJoin, ProjectAdd } = require("../notification/const");
 const { AddNotification } = require("../notification/data");
@@ -22,6 +23,8 @@ const {
   ProjectUserNotInRequestMessage,
   ProjectUpdateMessage,
   ProjectListMessage,
+  ProjectResponseAddError,
+  ProjectResponseAddMessage,
 } = require("../../utils/message");
 const req = require("express/lib/request");
 
@@ -176,6 +179,37 @@ const JoinRequestForProject = async (req, res) => {
   }
 };
 
+const JoinProjectForm = async (req, res) => {
+  try {
+    // console.log(req.params.id);
+    const project = await GetProjectById(req);
+    // console.log(project);
+    const user = req.rootUser;
+    // console.log(rootUser._id);
+    const ques1 = req.body.ques1;
+    const ques2 = req.body.ques2;
+    const response = {
+      ques1: ques1,
+      ques2: ques2,
+      filler_id: req.rootUser._id,
+      creator_id: project.creator_id,
+      project_id: project._id,
+    };
+    console.log(response);
+
+    const newResponse = new FormModel(response);
+    await newResponse.save(async (err) => {
+      if (err) {
+        return res.status(404).send({ message: err });
+      }
+
+      return SuccessResponseHandler(res, 200, ProjectResponseAddMessage);
+    });
+  } catch (error) {
+    return ErrorResponseHandler(res, 404, ProjectResponseAddError);
+  }
+};
+
 const AddMemberInProject = async (req, res) => {
   try {
     const project = await GetProjectById(req);
@@ -278,3 +312,4 @@ exports.JoinRequestForProject = JoinRequestForProject;
 exports.UpdateProject = UpdateProject;
 exports.deleteProjectById = deleteProjectById;
 exports.GetMyProjects = GetMyProjects;
+exports.JoinProjectForm = JoinProjectForm;
