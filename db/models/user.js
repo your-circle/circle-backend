@@ -7,6 +7,7 @@ const { Schema } = mongoose;
 const userSchema = new Schema(
   {
     name: { type: String, required: true, unique: true },
+    username: { type: String },
     email: { type: String, required: true, unique: true },
     role: {
       type: String,
@@ -22,11 +23,10 @@ const userSchema = new Schema(
     skills: [String],
     open_to: [String],
     avatarSeed: String,
-    projects: [{ type: Schema.Types.ObjectId, ref: 'PROJECT' }]
+    projects: [{ type: Schema.Types.ObjectId, ref: "PROJECT" }],
   },
   { timestamps: true }
 );
-
 
 //hashing the passwords with a total of 20 rounds
 userSchema.pre("save", async function (next) {

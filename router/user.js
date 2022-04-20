@@ -8,7 +8,7 @@ const {
   getUser,
 } = require("../controllers/user/index");
 
-router.post("/all", getAllUser);
+router.post("/all", Authenticate, getAllUser);
 router.get("/:id", getUser);
 router.put("/update", Authenticate, UpdateUser);
 module.exports = router;

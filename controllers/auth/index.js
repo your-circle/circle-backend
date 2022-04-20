@@ -63,6 +63,7 @@ const SignIn = async (req, res) => {
     const { email, password } = req.body;
 
     const User = await UserModel.findOne({ email });
+
     if (!User) {
       return ErrorResponseHandler(res, 404, UserNotFoundMessage);
     }

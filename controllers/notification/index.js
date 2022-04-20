@@ -27,10 +27,13 @@ const GetNotification = async (req, res) => {
       return SuccessResponseHandler(res, 200, NotificationListMessage, []);
     }
 
-    const list = Array.from(Notifications.notifications).slice(
-      skip,
-      skip + limit
-    );
+    Notifications.isOpen = false;
+
+    await Notifications.save();
+
+    const list = Array.from(Notifications.notifications)
+      .reverse()
+      .slice(skip, skip + limit);
 
     Notifications.notifications = list;
 
@@ -71,5 +74,28 @@ const MarkNotification = async (req, res) => {
   }
 };
 
+const StatusNotification = async (req, res) => {
+  try {
+    var userId = req.userID;
+    const Notification = await NotificationModel.findOne({
+      user: userId,
+    });
+
+    if (!Notification) {
+      return SuccessResponseHandler(res, 200, NotificationListMessage, false);
+    }
+
+    return SuccessResponseHandler(
+      res,
+      200,
+      NotificationListMessage,
+      Notification.isOpen
+    );
+  } catch (error) {
+    return ErrorResponseHandler(res, 404, e.message);
+  }
+};
+
 exports.GetNotification = GetNotification;
 exports.MarkNotification = MarkNotification;
+exports.StatusNotification = StatusNotification;

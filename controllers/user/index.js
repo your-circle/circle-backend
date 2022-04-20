@@ -22,7 +22,12 @@ const getAllUser = async (req, res) => {
     };
 
     if (name) {
-      query["$and"].push({ name: { $regex: name, $options: "i" } });
+      query["$and"].push({
+        $or: [
+          { name: { $regex: name, $options: "i" } },
+          { username: { $regex: name, $options: "i" } },
+        ],
+      });
     }
 
     if (role) {

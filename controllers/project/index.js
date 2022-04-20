@@ -86,7 +86,12 @@ const getAllProject = async (req, res) => {
     };
 
     if (title) {
-      query["$and"].push({ title: { $regex: title, $options: "i" } });
+      query["$and"].push({
+        $or: [
+          { title: { $regex: title, $options: "i" } },
+          { description: { $regex: title, $options: "i" } },
+        ],
+      });
     }
 
     if (need && need.length > 0) {
@@ -150,6 +155,10 @@ const JoinRequestForProject = async (req, res) => {
   try {
     const project = await GetProjectById(req);
     const user = req.rootUser;
+
+    if (project.creator_id.equals(user._id)) {
+      return ErrorResponseHandler(res, 404, ProjectUserInTeamMessage);
+    }
 
     if (project.team.includes(user._id)) {
       return ErrorResponseHandler(res, 404, ProjectUserInTeamMessage);
@@ -229,6 +238,7 @@ const GetMyProjects = async (req, res) => {
       path: "projects",
       options: { sort: { createdAt: -1 }, skip: skip, limit: limit },
     });
+    console.log(User.projects.length);
 
     return SuccessResponseHandler(res, 200, ProjectListMessage, User.projects);
   } catch (error) {
