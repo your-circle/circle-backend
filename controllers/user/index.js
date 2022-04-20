@@ -18,7 +18,7 @@ const getAllUser = async (req, res) => {
     const { skip, limit } = GetSkipAndLimit(req);
 
     let query = {
-      $and: [],
+      $and: [{ skills: { $gt: 0 }, open_to: { $gt: 0 } }],
     };
 
     if (name) {
