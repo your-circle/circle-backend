@@ -7,12 +7,13 @@ const projectSchema = new Schema(
     description: String,
     tech: [String],
     need: [String],
-    likes: [{ type: Schema.Types.ObjectId, ref: 'USER' }],
-    request_list: [{ type: Schema.Types.ObjectId, ref: 'USER' }],
-    team: [{ type: Schema.Types.ObjectId, ref: 'USER' }],
-    creator_id: { type: Schema.Types.ObjectId, ref: 'USER' },
+    likes: [{ type: Schema.Types.ObjectId, ref: "USER" }],
+    request_list: [{ type: Schema.Types.ObjectId, ref: "USER" }],
+    team: [{ type: Schema.Types.ObjectId, ref: "USER" }],
+    creator_id: { type: Schema.Types.ObjectId, ref: "USER" },
     creator_name: String,
     is_team_full: Boolean,
+    status: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

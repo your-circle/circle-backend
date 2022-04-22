@@ -22,6 +22,7 @@ const {
   ProjectUserNotInRequestMessage,
   ProjectUpdateMessage,
   ProjectListMessage,
+  ProjectUserInNotTeamMessage,
 } = require("../../utils/message");
 const req = require("express/lib/request");
 
@@ -82,6 +83,7 @@ const getAllProject = async (req, res) => {
     // console.log(filters);
 
     let query = {
+      // $and: [{ status: true }],
       $and: [],
     };
 
@@ -138,15 +140,74 @@ const getProjectById = async (req, res) => {
 
 const deleteProjectById = async (req, res) => {
   try {
-    const project = await GetProjectById(req);
+    let project = await GetProjectById(req);
 
     if (!project.creator_id.equals(req.rootUser._id)) {
       return ErrorResponseHandler(res, 404, ProjectNotAuthorizedMessage);
     }
 
-    await ProjectModel.findByIdAndDelete(project._id);
+    project = await ProjectModel.findByIdAndUpdate(project._id, {
+      status: false,
+    });
     return SuccessResponseHandler(res, 200, ProjectDeleteMessage);
   } catch (error) {
+    return ErrorResponseHandler(res, 404, ProjectNotExitsMessage);
+  }
+};
+
+const RemoveRequestForProject = async (req, res) => {
+  try {
+    const project = await GetProjectById(req);
+    const peerID = mongoose.Types.ObjectId(req.body.user_id);
+    const user = req.rootUser;
+
+    if (!project.creator_id.equals(user._id)) {
+      return ErrorResponseHandler(res, 404, ProjectNotAuthorizedMessage);
+    }
+
+    if (!project.request_list.includes(peerID)) {
+      return ErrorResponseHandler(res, 404, ProjectUserInNotTeamMessage);
+    }
+
+    project.request_list.pull(peerID);
+
+    await project.save(async (error) => {
+      if (error) {
+        return ErrorResponseHandler(res, 404, error._message);
+      }
+      return SuccessResponseHandler(res, 200, ProjectDeleteMessage);
+    });
+  } catch (error) {
+    return ErrorResponseHandler(res, 404, ProjectNotExitsMessage);
+  }
+};
+
+const RemoveMemberInProject = async (req, res) => {
+  try {
+    const project = await GetProjectById(req);
+    const peerID = mongoose.Types.ObjectId(req.body.user_id);
+    const user = req.rootUser;
+
+    if (!project.creator_id.equals(user._id)) {
+      return ErrorResponseHandler(res, 404, ProjectNotAuthorizedMessage);
+    }
+
+    if (!project.team.includes(peerID)) {
+      console.log("call");
+      return ErrorResponseHandler(res, 404, ProjectUserInNotTeamMessage);
+    }
+
+    project.team.pull(peerID);
+
+    await project.save(async (error) => {
+      if (error) {
+        console.log(error);
+        return ErrorResponseHandler(res, 404, error._message);
+      }
+      return SuccessResponseHandler(res, 200, ProjectDeleteMessage);
+    });
+  } catch (error) {
+    // console.log(error);
     return ErrorResponseHandler(res, 404, ProjectNotExitsMessage);
   }
 };
@@ -287,4 +348,7 @@ exports.AddMemberInProject = AddMemberInProject;
 exports.JoinRequestForProject = JoinRequestForProject;
 exports.UpdateProject = UpdateProject;
 exports.deleteProjectById = deleteProjectById;
+exports.GetMyProjects = GetMyProjects;
+exports.RemoveRequestForProject = RemoveRequestForProject;
+exports.RemoveMemberInProject = RemoveMemberInProject;
 exports.GetMyProjects = GetMyProjects;
