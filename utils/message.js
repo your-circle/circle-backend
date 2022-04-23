@@ -25,6 +25,7 @@ exports.ProjectUpdateMessage = "Project Update";
 exports.ProjectUserInTeamMessage = "User is in Team";
 exports.ProjectUserInRequestMessage = "User is in request List";
 exports.ProjectUserNotInRequestMessage = "User is in not request List";
+exports.ProjectUserInNotTeamMessage = "User is in not team List";
 
 //user
 exports.AllUserListMessage = "User list";
