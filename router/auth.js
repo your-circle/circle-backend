@@ -9,7 +9,7 @@ const {
     SignIn, 
     SignUp, 
     verifyAuthToken 
-} = require("../controllers/auth/index");
+} = require("../controllers/auth/index").functions;
 
 
 router.post("/signup",SignUpValidation,Validator, SignUp);

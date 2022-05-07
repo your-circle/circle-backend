@@ -16,7 +16,7 @@ const {
   deleteProjectById,
   RemoveRequestForProject,
   RemoveMemberInProject,
-} = require("../controllers/project/index");
+} = require("../controllers/project/index").functions;
 
 router.post("/all", Authenticate, getAllProject);
 router.get("/:id", getProjectById);

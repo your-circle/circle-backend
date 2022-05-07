@@ -8,7 +8,7 @@ const {
   GetNotification,
   MarkNotification,
   StatusNotification,
-} = require("../controllers/notification/index");
+} = require("../controllers/notification/index").functions;
 
 router.post("/all", Authenticate, Validator, GetNotification);
 router.post("/mark_read", Authenticate, Validator, MarkNotification);

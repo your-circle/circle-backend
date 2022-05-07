@@ -6,7 +6,7 @@ const {
   getAllUser,
   UpdateUser,
   getUser,
-} = require("../controllers/user/index");
+} = require("../controllers/user/index").functions;
 
 router.post("/all", Authenticate, getAllUser);
 router.get("/:id", getUser);
