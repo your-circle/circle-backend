@@ -1,16 +1,17 @@
-const { UserModel } = require("../../db/models/user");
+const { UserModel } = require("../../../db/models/user");
 
 const {
   SuccessResponseHandler,
   ErrorResponseHandler,
-} = require("../../utils/response_handler");
+} = require("../../../utils/response_handler");
 
 const {
   AllUserListMessage,
   UserDataMessage,
-  UserUpdateMessage,
-} = require("../../utils/const/message");
-const { GetSkipAndLimit } = require("../../utils/helper/limit");
+} = require("../../../utils/const/message");
+const { GetSkipAndLimit } = require("../../../utils/helper/limit");
+
+
 
 const getAllUser = async (req, res) => {
   try {
@@ -68,21 +69,6 @@ const getUser = async (req, res) => {
   }
 };
 
-const UpdateUser = async (req, res) => {
-  try {
-    const filter = { _id: req.userID };
-    const update = { ...req.body };
-    // console.log(update);
-
-    await UserModel.findOneAndUpdate(filter, update);
-    const update_user = await UserModel.findOne(filter).select({ password: 0 });
-
-    return SuccessResponseHandler(res, 200, UserUpdateMessage, update_user);
-  } catch (e) {
-    return ErrorResponseHandler(res, 404, e.message);
-  }
-};
 
 exports.getAllUser = getAllUser;
 exports.getUser = getUser;
-exports.UpdateUser = UpdateUser;

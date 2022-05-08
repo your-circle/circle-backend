@@ -1,167 +1,27 @@
-const { ProjectModel } = require("../../db/models/project");
-const { UserModel } = require("../../db/models/user");
-const { ProjectJoin, ProjectAdd } = require("../../utils/const/notifications");
-const { AddNotification } = require("../notification/index").functions;
+const { ProjectModel } = require("../../../db/models/project");
+const { ProjectJoin, ProjectAdd } = require("../../../utils/const/notifications");
+const { AddNotification } = require("../../notification/index").functions;
 const mongoose = require("mongoose");
-const { GetSkipAndLimit } = require("../../utils/helper/limit");
 const {
   SuccessResponseHandler,
   ErrorResponseHandler,
-} = require("../../utils/response_handler");
+} = require("../../../utils/response_handler");
 
 
-const GetProjectById= async (req)=>{
-    var id = req.params.id;
-    console.log(id)
-    const project = await ProjectModel.findById(id);
-    return project;
-}
+const {GetProjectById}=require("./other")
 
 
 const {
-  ProjectWithNameExistsMessage,
-  ProjectAddedMessage,
   ProjectNotExitsMessage,
-  ProjectDataMessage,
   ProjectNotAuthorizedMessage,
   ProjectDeleteMessage,
   ProjectUserInTeamMessage,
   ProjectUserInRequestMessage,
   ProjectUserNotInRequestMessage,
   ProjectUpdateMessage,
-  ProjectListMessage,
   ProjectUserInNotTeamMessage,
-} = require("../../utils/const/message");
+} = require("../../../utils/const/message");
 
-
-const AddProject = async (req, res) => {
-  try {
-    let ProjectData = req.body;
-
-    const hasProject = await ProjectModel.findOne({
-      title: ProjectData.title,
-    });
-
-    if (hasProject) {
-      return ErrorResponseHandler(res, 404, ProjectWithNameExistsMessage);
-    }
-
-    const User = req.rootUser;
-    const Project = {
-      ...ProjectData,
-      creator_id: User._id,
-      creator_name: User.name,
-    };
-
-    const newProject = new ProjectModel(Project);
-    await newProject.save(async (err) => {
-      if (err) {
-        return res.status(404).send({ message: err });
-      }
-
-      User.projects.push(newProject._id);
-
-      await User.save((err) => {
-        if (err) {
-          return ErrorResponseHandler(
-            res,
-            404,
-            "Some Error in add project to user list"
-          );
-        }
-
-        return SuccessResponseHandler(res, 200, ProjectAddedMessage, {
-          title: Project.title,
-          description: Project.description,
-          creator_id: Project.creator_id,
-        });
-      });
-    });
-  } catch (error) {
-    return ErrorResponseHandler(res, 404, error.message);
-  }
-};
-
-const getAllProject = async (req, res) => {
-  try {
-    var { title, tech, need } = req.body;
-
-    const { skip, limit } = GetSkipAndLimit(req);
-
-    // console.log(filters);
-
-    let query = {
-      // $and: [{ status: true }],
-      $and: [],
-    };
-
-    if (title) {
-      query["$and"].push({
-        $or: [
-          { title: { $regex: title, $options: "i" } },
-          { description: { $regex: title, $options: "i" } },
-        ],
-      });
-    }
-
-    if (need && need.length > 0) {
-      query["$and"].push({ need: { $in: need } });
-    }
-
-    if (tech && tech.length > 0) {
-      query["$and"].push({ tech: { $in: tech } });
-    }
-
-    if (query["$and"].length == 0) {
-      query = {};
-    }
-
-    let list = await ProjectModel.find(query)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
-
-    console.log(list.length);
-
-    return SuccessResponseHandler(res, 200, ProjectListMessage, list);
-  } catch (error) {
-    return ErrorResponseHandler(res, 404, error.message);
-  }
-};
-
-const getProjectById = async (req, res) => {
-  try {
-    var id = req.params.id;
-    const project = await ProjectModel.findById(id)
-      .populate("request_list", "_id name")
-      .populate("team", "_id name");
-
-    if (project == null) {
-      return ErrorResponseHandler(res, 404, ProjectNotExitsMessage);
-    }
-
-    return SuccessResponseHandler(res, 200, ProjectDataMessage, project);
-  } catch (error) {
-    return ErrorResponseHandler(res, 404, ProjectNotExitsMessage);
-  }
-};
-
-const deleteProjectById = async (req, res) => {
-  try {
-    let project = await GetProjectById(req);
-
-    if (!project.creator_id.equals(req.rootUser._id)) {
-      return ErrorResponseHandler(res, 404, ProjectNotAuthorizedMessage);
-    }
-
-    project = await ProjectModel.findByIdAndUpdate(project._id, {
-      status: false,
-    });
-    return SuccessResponseHandler(res, 200, ProjectDeleteMessage);
-  } catch (error) {
-    return ErrorResponseHandler(res, 404, ProjectNotExitsMessage);
-  }
-};
 
 const RemoveRequestForProject = async (req, res) => {
   try {
@@ -201,7 +61,6 @@ const RemoveMemberInProject = async (req, res) => {
     }
 
     if (!project.team.includes(peerID)) {
-      console.log("call");
       return ErrorResponseHandler(res, 404, ProjectUserInNotTeamMessage);
     }
 
@@ -209,13 +68,11 @@ const RemoveMemberInProject = async (req, res) => {
 
     await project.save(async (error) => {
       if (error) {
-        console.log(error);
         return ErrorResponseHandler(res, 404, error._message);
       }
       return SuccessResponseHandler(res, 200, ProjectDeleteMessage);
     });
   } catch (error) {
-    // console.log(error);
     return ErrorResponseHandler(res, 404, ProjectNotExitsMessage);
   }
 };
@@ -260,8 +117,6 @@ const AddMemberInProject = async (req, res) => {
     const user = req.rootUser;
     const peerID = mongoose.Types.ObjectId(req.body.user_id);
 
-    // console.log(project.creator, user._id);
-
     if (!project.creator_id.equals(user._id)) {
       return ErrorResponseHandler(res, 404, ProjectNotAuthorizedMessage);
     }
@@ -295,27 +150,6 @@ const AddMemberInProject = async (req, res) => {
   }
 };
 
-const GetMyProjects = async (req, res) => {
-  try {
-    var id = req.params.id;
-
-    const { skip, limit } = GetSkipAndLimit(req);
-
-    console.log({ skip, limit });
-
-    const User = await UserModel.findById(id).populate({
-      path: "projects",
-      options: { sort: { createdAt: -1 }, skip: skip, limit: limit },
-    });
-    console.log(User.projects.length);
-
-    return SuccessResponseHandler(res, 200, ProjectListMessage, User.projects);
-  } catch (error) {
-    console.log(error);
-    return ErrorResponseHandler(res, 400, ProjectNotExitsMessage);
-  }
-};
-
 const UpdateProject = async (req, res) => {
   try {
     const filter = { _id: req.params.id };
@@ -325,8 +159,6 @@ const UpdateProject = async (req, res) => {
       tech: req.body.tech,
       need: req.body.need,
     };
-
-    console.log(update);
 
     const project = await GetProjectById(req);
 
@@ -349,16 +181,11 @@ const UpdateProject = async (req, res) => {
   }
 };
 
-exports.getProjectById = getProjectById;
-exports.getAllProject = getAllProject;
-exports.AddProject = AddProject;
+
 exports.AddMemberInProject = AddMemberInProject;
 exports.JoinRequestForProject = JoinRequestForProject;
 exports.UpdateProject = UpdateProject;
-exports.deleteProjectById = deleteProjectById;
-exports.GetMyProjects = GetMyProjects;
 exports.RemoveRequestForProject = RemoveRequestForProject;
 exports.RemoveMemberInProject = RemoveMemberInProject;
-exports.GetMyProjects = GetMyProjects;
 
 
