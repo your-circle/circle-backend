@@ -10,6 +10,7 @@ const authRouter = require("./router/auth");
 const userRouter = require("./router/user");
 const projectRouter = require("./router/project");
 const NotificationRouter = require("./router/notification");
+const DataRouter = require("./router/data");
 
 const logRequestStart = (req, res, next) => {
   res.on("finish", () => {
@@ -35,6 +36,7 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/project", projectRouter);
 app.use("/api/v1/notification", NotificationRouter);
+app.use("/api/v1/data", DataRouter);
 
 
 

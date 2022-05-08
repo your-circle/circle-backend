@@ -14,7 +14,7 @@ const {
   UserWithNameExitsMessage,
 } = require("../../utils/const/message");
 
-const verifyAuthToken = async (req, res) => {
+const VerifyAuthToken = async (req, res) => {
   return SuccessResponseHandler(res, 200, "Token is not expired");
 };
 
@@ -86,4 +86,4 @@ const SignIn = async (req, res) => {
 
 exports.SignIn = SignIn;
 exports.SignUp = SignUp;
-exports.verifyAuthToken = verifyAuthToken;
+exports.VerifyAuthToken = VerifyAuthToken;

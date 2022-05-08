@@ -16,7 +16,7 @@ const {
 
 
 
-const getAllProject = async (req, res) => {
+const GetAllProject = async (req, res) => {
   try {
     var { title, tech, need } = req.body;
 
@@ -60,7 +60,7 @@ const getAllProject = async (req, res) => {
   }
 };
 
-const getProjectById = async (req, res) => {
+const GetProjectById = async (req, res) => {
   try {
     var id = req.params.id;
     const project = await ProjectModel.findById(id)
@@ -95,8 +95,8 @@ const GetMyProjects = async (req, res) => {
 };
 
 
-exports.getProjectById = getProjectById;
-exports.getAllProject = getAllProject;
+exports.GetProjectById = GetProjectById;
+exports.GetAllProject = GetAllProject;
 exports.GetMyProjects = GetMyProjects;
 exports.GetMyProjects = GetMyProjects;
 

@@ -13,7 +13,7 @@ const { GetSkipAndLimit } = require("../../../utils/helper/limit");
 
 
 
-const getAllUser = async (req, res) => {
+const GetAllUser = async (req, res) => {
   try {
     let { name, role, skills, open_to } = req.body;
     const { skip, limit } = GetSkipAndLimit(req);
@@ -58,7 +58,7 @@ const getAllUser = async (req, res) => {
   }
 };
 
-const getUser = async (req, res) => {
+const GetUser = async (req, res) => {
   try {
     const user = await UserModel.findById(req.params.id).select({
       password: 0,
@@ -70,5 +70,5 @@ const getUser = async (req, res) => {
 };
 
 
-exports.getAllUser = getAllUser;
-exports.getUser = getUser;
+exports.GetAllUser = GetAllUser;
+exports.GetUser = GetUser;

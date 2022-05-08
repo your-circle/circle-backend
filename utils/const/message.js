@@ -31,3 +31,9 @@ exports.ProjectUserInNotTeamMessage = "User is in not team List";
 exports.AllUserListMessage = "User list";
 exports.UserDataMessage = "User details";
 exports.UserUpdateMessage = "User Update";
+
+
+//data
+exports.AllDataMessage = "Data";
+exports.DataAddedMessage = "Data created";
+exports.DataUpdateMessage = "Data Update";

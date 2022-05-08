@@ -3,12 +3,12 @@ const router = express.Router();
 const { Authenticate } = require("../middleware/authenticate");
 // const { Validator } = require("../middleware/validator")
 const {
-  getAllUser,
+  GetAllUser,
   UpdateUser,
-  getUser,
+  GetUser,
 } = require("../controllers/user/index").functions;
 
-router.post("/all", Authenticate, getAllUser);
-router.get("/:id", getUser);
+router.post("/all", Authenticate, GetAllUser);
+router.get("/:id", GetUser);
 router.put("/update", Authenticate, UpdateUser);
 module.exports = router;

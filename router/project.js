@@ -7,8 +7,8 @@ const { ProjectValidation } = require("../utils/validator/project");
 
 const {
   AddProject,
-  getAllProject,
-  getProjectById,
+  GetAllProject,
+  GetProjectById,
   JoinRequestForProject,
   AddMemberInProject,
   GetMyProjects,
@@ -18,8 +18,8 @@ const {
   RemoveMemberInProject,
 } = require("../controllers/project/index").functions;
 
-router.post("/all", Authenticate, getAllProject);
-router.get("/:id", getProjectById);
+router.post("/all", Authenticate, GetAllProject);
+router.get("/:id", GetProjectById);
 router.post(
   "/add-project",
   Authenticate,
