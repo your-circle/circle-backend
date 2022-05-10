@@ -3,7 +3,6 @@ const { ErrorResponseHandler } = require("../utils/response_handler");
 
 const Validator = async (req, res, next) => {
   try {
-    console.log(req.body);
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {

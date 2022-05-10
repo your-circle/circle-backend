@@ -3,9 +3,10 @@ const { Schema } = mongoose;
 
 const dataSchema = new Schema(
   {
-    type: String,
-    skills: [String],
+    type: {type:String,unique:true},
+    tech: [String],
     open_to: [String],
+    need: [String]
   },
   { timestamps: true }
 );

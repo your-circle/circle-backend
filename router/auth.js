@@ -8,12 +8,12 @@ const { SignUpValidation ,LoginValidation} = require("../utils/validator/auth");
 const { 
     SignIn, 
     SignUp, 
-    verifyAuthToken 
-} = require("../controllers/auth/index");
+    VerifyAuthToken 
+} = require("../controllers/auth/index").functions;
 
 
 router.post("/signup",SignUpValidation,Validator, SignUp);
 router.post("/login",LoginValidation,Validator, SignIn);
-router.get("/verifyToken", Authenticate, verifyAuthToken);
+router.get("/verifyToken", Authenticate, VerifyAuthToken);
 
 module.exports = router;

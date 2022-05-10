@@ -1,101 +1,10 @@
-const { forEach } = require("lodash");
-const { NotificationModel } = require("../../db/models/notifications");
-const {
-  SuccessResponseHandler,
-  ErrorResponseHandler,
-} = require("../../utils/response_handler");
+const notifications_read_functions = require('./crud/read');
+const notifications_create_functions = require('./crud/create');
+const notifications_update_functions = require('./crud/update');
 
-const {
-  NotificationListMessage,
-  NotificationMarkAsReadMessage,
-  NotificationNotFoundMessage,
-} = require("../../utils/message");
-const { GetSkipAndLimit } = require("../helper/limit");
 
-const GetNotification = async (req, res) => {
-  try {
-    var userId = req.userID;
-    // console.log(userId, req.rootUser);
-
-    const { skip, limit } = GetSkipAndLimit(req);
-
-    const Notifications = await NotificationModel.findOne({
-      user: userId,
-    }).sort({ createdAt: -1 });
-
-    if (Notifications == null) {
-      return SuccessResponseHandler(res, 200, NotificationListMessage, []);
-    }
-
-    Notifications.isOpen = false;
-
-    await Notifications.save();
-
-    const list = Array.from(Notifications.notifications)
-      .reverse()
-      .slice(skip, skip + limit);
-
-    Notifications.notifications = list;
-
-    return SuccessResponseHandler(
-      res,
-      200,
-      NotificationListMessage,
-      Notifications
-    );
-  } catch (error) {
-    return ErrorResponseHandler(res, 404, error.message);
-  }
+exports.functions={
+    ...notifications_read_functions,
+    ...notifications_create_functions,
+    ...notifications_update_functions
 };
-
-const MarkNotification = async (req, res) => {
-  try {
-    var userId = req.userID;
-    const Notification = await NotificationModel.findOne({
-      user: userId,
-    });
-
-    if (!Notification) {
-      return ErrorResponseHandler(res, 404, NotificationNotFoundMessage);
-    }
-
-    Notification.isOpen = false;
-
-    await Notification.save();
-
-    return SuccessResponseHandler(
-      res,
-      200,
-      NotificationMarkAsReadMessage,
-      Notification
-    );
-  } catch (error) {
-    return ErrorResponseHandler(res, 404, e.message);
-  }
-};
-
-const StatusNotification = async (req, res) => {
-  try {
-    var userId = req.userID;
-    const Notification = await NotificationModel.findOne({
-      user: userId,
-    });
-
-    if (!Notification) {
-      return SuccessResponseHandler(res, 200, NotificationListMessage, false);
-    }
-
-    return SuccessResponseHandler(
-      res,
-      200,
-      NotificationListMessage,
-      Notification.isOpen
-    );
-  } catch (error) {
-    return ErrorResponseHandler(res, 404, e.message);
-  }
-};
-
-exports.GetNotification = GetNotification;
-exports.MarkNotification = MarkNotification;
-exports.StatusNotification = StatusNotification;

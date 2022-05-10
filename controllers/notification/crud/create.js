@@ -1,12 +1,12 @@
-const { NotificationModel } = require("../../db/models/notifications");
-const { ProjectAdd, ProjectJoin, UserInfo } = require("./const");
+const { NotificationModel } = require("../../../db/models/notifications");
+const { ProjectAdd, ProjectJoin, UserInfo } = require("../../../utils/const/notifications");
 
 const {
   SuccessResponseHandler,
   ErrorResponseHandler,
-} = require("../../utils/response_handler");
+} = require("../../../utils/response_handler");
 
-const { ProjectUpdateMessage } = require("../../utils/message");
+const { ProjectUpdateMessage } = require("../../../utils/const/message");
 
 const AddNotification = async (req, res, type) => {
   switch (type) {
@@ -45,6 +45,7 @@ const AddJoinNotification = async (req, res, type) => {
       return SuccessResponseHandler(res, 200, ProjectUpdateMessage);
     });
 };
+
 
 const AddMemberInProject = async (req, res, type) => {
   const notificationsUser = await AddNotificationIfNotExits(req.userID);
