@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon server.js",
-    "start": "node start.js"
+    "start": "nodemon server.js"
   },
   "repository": {
     "type": "git",
@@ -30,6 +30,6 @@
     "lodash": "^4.17.21",
     "mongoose": "^6.2.6",
     "nodemailer": "^6.7.5",
-    "nodemon": "^2.0.15"
+    "nodemon": "^2.0.16"
   }
 }
