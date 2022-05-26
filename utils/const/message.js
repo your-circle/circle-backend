@@ -5,6 +5,8 @@ exports.UserNotFoundMessage = "User not Found";
 exports.InVailPasswordMessage = "Password is no valid";
 exports.UserLogInMessage = "User logged in successfully";
 exports.UserWithNameExitsMessage = "User with this name already exist";
+exports.UserPasswordLinkSent = "password reset link sent to your email account"
+exports.UserPasswordResetSuccessfull = "Password reset successfully";
 
 //notification
 exports.NotificationListMessage = "Following are Notifications";
@@ -37,3 +39,4 @@ exports.UserUpdateMessage = "User Update";
 exports.AllDataMessage = "Data";
 exports.DataAddedMessage = "Data created";
 exports.DataUpdateMessage = "Data Update";
+
