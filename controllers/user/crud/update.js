@@ -37,7 +37,8 @@ const forgetpassword = async (req,res) => {
     if(!user) return res.status(400).send("user with given email does not exist");
       const token = await user.generateAuthToken();
       const link = `${process.env.BASE_URL}/password-reset/${id}/${token}`;
-      await sendEmail(user.email,"Password reset for your circle account", link);
+      const content = "Ola! reset your password with the following link."
+      await sendEmail(user.email,"Password reset for your circle account", content+" " +link);
       SuccessResponseHandler(res, 200, UserPasswordLinkSent);
 
   } catch (error) {
